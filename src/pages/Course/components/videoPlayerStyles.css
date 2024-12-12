@@ -1,0 +1,54 @@
+#rangeProgress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 0.5rem; /* Altura do track */
+    background: transparent;
+    cursor: pointer;
+  }
+
+  #rangeProgress:focus {
+    outline: none;
+  }
+
+  #rangeProgress::-webkit-slider-runnable-track {
+    height: 0.5rem;
+    background: linear-gradient(
+      to right,
+      #282828 0%,
+      #282828 var(--progress, 50%),
+      #d6d6d6 var(--progress, 50%),
+      #d6d6d6 100%
+    );
+    border-radius: 0.25rem; /* Borda arredondada */
+  }
+
+  #rangeProgress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -4px;
+    background-color: #d6d6d6;
+    height: 1rem;
+    width: 1.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+  }
+
+  #rangeProgress::-moz-range-track {
+    height: 0.5rem;
+    background: linear-gradient(
+      to right,
+      #282828 0%,
+      #282828 var(--progress, 50%),
+      #d6d6d6 var(--progress, 50%),
+      #d6d6d6 100%
+    );
+    border-radius: 0.25rem;
+  }
+
+  #rangeProgress::-moz-range-thumb {
+    background-color: #d6d6d6;
+    height: 1rem;
+    width: 1.5rem;
+    border-radius: 0.25rem;
+  }
