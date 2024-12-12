@@ -5,7 +5,7 @@ import { UserDataProps, useUser } from "../../contexts/userDataContext";
 import { FaBell, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MyCalendar } from "./components/MyCalendar";
-import { SidebarUser } from "../../components/sideBarUser";
+import { SidebarUser } from "./components/sideBarUser";
 
 export default function Dashboard() {
   const navigate = useNavigate();

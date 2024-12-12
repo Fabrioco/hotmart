@@ -3,7 +3,7 @@ import { BiBookAlt } from "react-icons/bi";
 import { FaBell } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 import { Graphics } from "./components/Graphics";
-import { useAuth } from "../../contexts/authContext";
+import { useAuth } from "../../../../contexts/authContext"; 
 
 type SidebarUserProps = {
   isOpenSidebarUser: boolean;
