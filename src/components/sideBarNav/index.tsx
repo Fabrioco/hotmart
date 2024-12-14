@@ -3,12 +3,14 @@ import {
   IoChatbubbleOutline,
   IoHomeOutline,
   IoInformationCircleOutline,
+  IoLogOutOutline,
   IoSettingsOutline,
 } from "react-icons/io5";
 import { BiBookAlt } from "react-icons/bi";
 import { PiMoney } from "react-icons/pi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userDataContext";
+import { useAuth } from "../../contexts/authContext";
 
 export const SidebarNav = () => {
   const location = useLocation();
@@ -24,14 +26,19 @@ export const SidebarNav = () => {
   const navigate = useNavigate();
 
   const { user } = useUser();
+  const { logOut } = useAuth();
+
+  const handleLogout = () => {
+    logOut();
+  };
 
   return (
     <div
       className={`${
         isOpenSidebar ? "w-[220px]" : "w-28"
-      } h-full bg-[#282828] flex flex-col  p-4 rounded-2xl gap-4 items-center justify-between transition-all shadow shadow-black `}
+      } h-full bg-[#282828] flex flex-col  p-4 rounded-2xl gap-4 items-center justify-between transition-all shadow shadow-black relative `}
     >
-      <div className="h-1/2 flex flex-col justify-between">
+      <div className="h-1/2 flex flex-col justify-between ">
         <div
           className="flex flex-col items-center justify-center cursor-pointer gap-2 self-end"
           onClick={() => setIsOpenSidebar(!isOpenSidebar)}
@@ -168,6 +175,21 @@ export const SidebarNav = () => {
             }`}
           >
             Configurações
+          </p>
+        </div>
+        <div
+          className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer absolute bottom-0`}
+          onClick={handleLogout}
+        >
+          <i>
+            <IoLogOutOutline size={25} color="#fff" />
+          </i>
+          <p
+            className={`text-xl text-white font-secondary ${
+              isOpenSidebar ? "block" : "hidden"
+            }`}
+          >
+            Desconectar
           </p>
         </div>
       </div>
