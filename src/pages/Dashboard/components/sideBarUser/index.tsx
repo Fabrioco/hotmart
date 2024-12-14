@@ -3,7 +3,10 @@ import { BiBookAlt } from "react-icons/bi";
 import { FaBell } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 import { Graphics } from "./components/Graphics";
-import { useAuth } from "../../../../contexts/authContext"; 
+import { useAuth } from "../../../../contexts/authContext";
+import {
+  useUser,
+} from "../../../../contexts/userDataContext";
 
 type SidebarUserProps = {
   isOpenSidebarUser: boolean;
@@ -15,10 +18,30 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
   setIsOpenSidebarUser,
 }) => {
   const { logOut } = useAuth();
+  const { user } = useUser();
 
-  const handleLogOut = ()=>{
-    logOut()
-  }
+  const handleLogOut = () => {
+    logOut();
+  };
+
+  const day = new Date().toLocaleDateString("pt-BR", { day: "2-digit" });
+
+  const month =
+    new Date()
+      .toLocaleDateString("pt-BR", { month: "long" })
+      .charAt(0)
+      .toUpperCase() +
+    new Date().toLocaleDateString("pt-BR", { month: "long" }).slice(1);
+
+  const year = new Date().toLocaleDateString("pt-BR", { year: "numeric" });
+
+  const weekday =
+    new Date()
+      .toLocaleDateString("pt-BR", { weekday: "long" })
+      .charAt(0)
+      .toUpperCase() +
+    new Date().toLocaleDateString("pt-BR", { weekday: "long" }).slice(1);
+
   return (
     <div
       className={`${
@@ -51,9 +74,10 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
         </div>
         <div className="flex justify-between">
           <div className="flex flex-col">
-            <p className="font-primary text-3xl">Segunda</p>
+            <p className="font-primary text-3xl">{"Olá, " + user?.name.split(" ")[0]}</p>
+            <p className="font-secondary text-2xl">{weekday}</p>
             <p className="font-secondary text-xl text-gray-400">
-              01 de Janeiro de 2024
+              {day} de {month} de {year}
             </p>
           </div>
         </div>
@@ -90,7 +114,10 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
         <div className="border border-gray-300 rounded-md p-1 h-[180px]">
           <Graphics />
         </div>
-        <button className="text-xl bg-red-500 text-black mx-auto w-auto px-4 py-2 rounded-lg shadow shadow-red-300 active:bg-red-600" onClick={handleLogOut}>
+        <button
+          className="text-xl bg-red-500 text-black mx-auto w-auto px-4 py-2 rounded-lg shadow shadow-red-300 active:bg-red-600"
+          onClick={handleLogOut}
+        >
           Log Out
         </button>
       </div>
