@@ -15,6 +15,7 @@ import Refunds from "../pages/Refunds";
 import { SidebarNav } from "../components/sideBarNav";
 import Messages from "../pages/Messages";
 import Private from "./private";
+import Admin from "../pages/Admin";
 
 export const RouterApp = () => {
   const location = useLocation();
@@ -34,7 +35,7 @@ export const RouterApp = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
-              path="/dashboard/:uid"
+              path="/dashboard"
               element={
                 <Private>
                   <Dashboard />
@@ -50,7 +51,7 @@ export const RouterApp = () => {
               }
             />
             <Route
-              path="/mycourses/:uid"
+              path="/mycourses"
               element={
                 <Private>
                   <MyCourses />
@@ -73,6 +74,7 @@ export const RouterApp = () => {
                 </Private>
               }
             />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
