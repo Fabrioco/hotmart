@@ -1,8 +1,8 @@
 import React from "react";
-import { useNotification } from "../../../../contexts/notificationContext";
+import { useNotification } from "../../../contexts/notificationContext";
 import imageCompression from "browser-image-compression";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../../../services/firebaseConnection";
+import { db } from "../../../services/firebaseConnection";
 
 export const UploadVideo = () => {
   const [title, setTitle] = React.useState<string>("");

@@ -1,7 +1,7 @@
 import { doc, setDoc } from "firebase/firestore";
 import React from "react";
-import { db } from "../../../../services/firebaseConnection";
-import { useNotification } from "../../../../contexts/notificationContext";
+import { db } from "../../../services/firebaseConnection";
+import { useNotification } from "../../../contexts/notificationContext";
 
 export const SendNotification = () => {
   const [title, setTitle] = React.useState<string>("");
