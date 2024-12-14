@@ -6,10 +6,11 @@ import { db } from "../../../../services/firebaseConnection";
 
 export const UploadVideo = () => {
   const [title, setTitle] = React.useState<string>("");
+  const [value, setValue] = React.useState<string>("");
   const [link, setLink] = React.useState<string>("");
   const [desc, setDesc] = React.useState<string>("");
-  const [isUploading, setIsUploading] = React.useState<boolean>(false);
   const [file, setFile] = React.useState<File | null>(null);
+  const [isUploading, setIsUploading] = React.useState<boolean>(false);
 
   const { showNotification } = useNotification();
 
@@ -39,6 +40,7 @@ export const UploadVideo = () => {
       const docRef = doc(db, "courses", title);
       await setDoc(docRef, {
         title,
+        value,
         link,
         desc,
         thumbnail: base64String,
@@ -88,6 +90,19 @@ export const UploadVideo = () => {
     setDesc("");
     setFile(null);
   };
+
+  const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let inputValue = e.target.value;
+
+    inputValue = inputValue.replace(/[^0-9,]/g, "").replace(",", ".");
+
+    if (inputValue) {
+      setValue("R$ " + parseFloat(inputValue));
+    } else {
+      setValue("");
+    }
+  };
+
   return (
     <div className="bg-white w-6/12 h-auto rounded-md p-5 shadow-md">
       <h1 className="font-primary text-3xl text-center mb-5">
@@ -101,6 +116,15 @@ export const UploadVideo = () => {
           className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
           onChange={(e) => setTitle(e.target.value)}
           value={title}
+          disabled={isUploading}
+        />
+        <input
+          type="text"
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+          placeholder="Digite o valor do curso"
+          id="valorCurso"
+          onChange={handleChangeValue}
+          value={value}
           disabled={isUploading}
         />
         <input
