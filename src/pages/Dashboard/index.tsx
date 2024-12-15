@@ -9,7 +9,7 @@ import { SidebarUser } from "./components/sideBarUser";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 
-type Course = {
+export type Course = {
   title: string;
   desc: string;
   value: string;
@@ -155,7 +155,10 @@ export default function Dashboard() {
                         <FaStar size={30} color="#ffcb0c" />
                       </i>
                     </div>
-                    <button className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary">
+                    <button
+                      className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary"
+                      onClick={() => navigate(`/payment/${course.title}`)}
+                    >
                       Comprar <strong>{course.value}</strong>
                     </button>
                   </div>
