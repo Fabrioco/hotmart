@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
         isTeacher: false,
       };
-      navigate(`/dashboard/${uid}`);
+      navigate(`/dashboard`);
       setUser(data);
       showNotification("Seja bem-vindo", "success");
     } catch (error) {
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(userData);
 
         showNotification("Bem-vindo de volta!", "success");
-        navigate(`/dashboard/${uid}`);
+        navigate(`/dashboard`);
         if (keepLogin) {
           KeepUserLog(userData.uid);
         } else {

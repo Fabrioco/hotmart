@@ -35,8 +35,11 @@ export default function Messages() {
         </div>
         <div className="w-full h-full bg-gray-50 p-4">
           {messages.map((message) => (
-            <div className="bg-white w-8/12 h-auto rounded-md border border-gray-400 shadow-2xl px-4 py-2 mt-4 flex justify-between">
-              <p className="font-secondary text-2xl">{message.description}</p>
+            <div className="bg-white w-8/12 h-auto rounded-md border border-gray-400 shadow-2xl px-4 py-2 mt-4 flex flex-row justify-between items-center">
+              <div className="flex flex-col">
+                <h2 className="font-primary text-3xl">{message.title}</h2>
+                <p className="font-secondary text-2xl">{message.description}</p>
+              </div>
               <div>
                 <p className="font-tertiary text-xl">{message.date}</p>
                 <p className="font-tertiary text-xl">{message.hour}</p>
