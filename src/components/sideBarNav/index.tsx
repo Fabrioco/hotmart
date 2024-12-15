@@ -9,7 +9,6 @@ import {
 import { BiBookAlt } from "react-icons/bi";
 import { PiMoney } from "react-icons/pi";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useUser } from "../../contexts/userDataContext";
 import { useAuth } from "../../contexts/authContext";
 
 export const SidebarNav = () => {
@@ -25,7 +24,6 @@ export const SidebarNav = () => {
 
   const navigate = useNavigate();
 
-  const { user } = useUser();
   const { logOut } = useAuth();
 
   const handleLogout = () => {
@@ -70,7 +68,7 @@ export const SidebarNav = () => {
             className={`flex flex-row items-center gap-3 cursor-pointer px-4 py-2 w-full ${
               isDashboard && "bg-gray-600 bg-opacity-40 rounded-md"
             }`}
-            onClick={() => navigate(`/dashboard/${user?.uid}`)}
+            onClick={() => navigate(`/dashboard`)}
           >
             <i>
               <IoHomeOutline size={25} color="#fff" />
@@ -87,7 +85,7 @@ export const SidebarNav = () => {
             className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer w-full ${
               isMyCourses && "bg-gray-600 bg-opacity-40 rounded-md"
             }`}
-            onClick={() => navigate(`/mycourses/${user?.uid}`)}
+            onClick={() => navigate(`/mycourses`)}
           >
             <i>
               <BiBookAlt size={25} color="#fff" />
