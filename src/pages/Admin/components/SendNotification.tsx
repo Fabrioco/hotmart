@@ -14,7 +14,8 @@ export const SendNotification = () => {
       await setDoc(doc(db, "notifications", title), {
         title,
         description,
-        date: new Date().toLocaleTimeString("pt-BR"),
+        hour: new Date().toLocaleTimeString("pt-BR"),
+        date: new Date().toLocaleDateString("pt-BR"),
       });
       showNotification("Notificação enviada com sucesso", "success");
     } catch (error) {
