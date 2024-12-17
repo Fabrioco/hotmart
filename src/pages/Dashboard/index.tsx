@@ -6,8 +6,21 @@ import { FaBell, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MyCalendar } from "./components/MyCalendar";
 import { SidebarUser } from "./components/sideBarUser";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../services/firebaseConnection";
+
+export type Course = {
+  title: string;
+  desc: string;
+  value: string;
+  link: string;
+  thumbnail: string;
+  rating?: number;
+  quantity?: number;
+};
 
 export default function Dashboard() {
+  const [courses, setCourses] = React.useState<Course[]>([]);
   const navigate = useNavigate();
   const { uid } = useParams();
   const { setUser } = useUser();
@@ -24,6 +37,17 @@ export default function Dashboard() {
     };
     loadData();
   }, [setUser, uid]);
+
+  const loadCourses = async () => {
+    const docSnap = await getDocs(collection(db, "courses"));
+    if (docSnap.docs) {
+      setCourses(docSnap.docs.map((doc) => doc.data()) as Course[]);
+    }
+  };
+
+  React.useEffect(() => {
+    loadCourses();
+  }, []);
 
   return (
     <div className="w-full h-full flex flex-row justify-between">
@@ -107,31 +131,39 @@ export default function Dashboard() {
               <span className="text-xl font-secondary">Mais Cursos</span>
             </button>
             <div className="flex flex-row h-[350px] flex-wrap gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-[#282828] pr-2">
-              <div className="xl:w-2/5 xl:min-w-72 xl:h-2/4 h-auto flex xl:flex-row flex-col border rounded-lg">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="imagem do curso"
-                  className="rounded-lg"
-                />
-                <div className="flex flex-col justify-around  px-2 py-1 text-center">
-                  <p className="text-xl font-secondary">Pezinho com degrade</p>
-                  <div className="flex flex-row items-center gap-1">
-                    <p className="font-secondary">220</p>
-                    <i>
-                      <FaPeopleGroup size={25} />
-                    </i>
+              {courses.map((course) => (
+                <div
+                  key={course.title}
+                  className="xl:w-1/5 xl:min-w-72 xl:h-2/4 h-auto flex xl:flex-row flex-col border rounded-lg"
+                >
+                  <img
+                    src={course.thumbnail}
+                    alt="Erro ao carregar imagem"
+                    className="rounded-lg w-1/2"
+                  />
+                  <div className="flex flex-col justify-around items-center px-2 py-1 w-1/2">
+                    <p className="text-xl font-secondary">{course.title}</p>
+                    <div className="flex flex-row items-center gap-1">
+                      <p className="font-secondary">{course.quantity}</p>
+                      <i>
+                        <FaPeopleGroup size={25} />
+                      </i>
+                    </div>
+                    <div className="flex flex-row items-center gap-1">
+                      <p className="font-secondary">{course.rating}</p>
+                      <i>
+                        <FaStar size={30} color="#ffcb0c" />
+                      </i>
+                    </div>
+                    <button
+                      className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary"
+                      onClick={() => navigate(`/payment/${course.title}`)}
+                    >
+                      Comprar <strong>{course.value}</strong>
+                    </button>
                   </div>
-                  <div className="flex flex-row items-center gap-1">
-                    <p className="font-secondary">4/5</p>
-                    <i>
-                      <FaStar size={30} color="#ffcb0c" />
-                    </i>
-                  </div>
-                  <button className="bg-gray-200 px-2 py-1 rounded flex flex-col font-tertiary">
-                    Comprar <strong>R$ 49,90</strong>
-                  </button>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
           {!isOpenSidebarUser && (

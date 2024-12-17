@@ -16,6 +16,7 @@ import { SidebarNav } from "../components/sideBarNav";
 import Messages from "../pages/Messages";
 import Private from "./private";
 import Admin from "../pages/Admin";
+import Payment from "../pages/Payment";
 
 export const RouterApp = () => {
   const location = useLocation();
@@ -71,6 +72,14 @@ export const RouterApp = () => {
               element={
                 <Private>
                   <Messages />
+                </Private>
+              }
+            />
+            <Route
+              path="/payment/:title"
+              element={
+                <Private>
+                  <Payment />
                 </Private>
               }
             />
