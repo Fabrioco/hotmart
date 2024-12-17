@@ -10,6 +10,7 @@ import { PixPayment } from "./components/PixPayment";
 export default function Payment() {
   const [course, setCourse] = React.useState<Course[]>([]);
   const [methodForPayment, setMethodForPayment] = React.useState<number>(0);
+
   const loadCourses = async () => {
     const docSnap = await getDocs(collection(db, "courses"));
     if (docSnap.docs) {
@@ -21,12 +22,15 @@ export default function Payment() {
     loadCourses();
   }, []);
 
-  const value = course.filter((item) => item.value);
+  const value = course.map((item) => item.value);
 
   return (
     <div className="flex w-full mx-auto bg-white shadow-md rounded-md overflow-hidden">
       {course.map((item, index) => (
-        <div key={index} className="w-1/3 bg-gray-100 p-8 text-center items-center justify-center relative">
+        <div
+          key={index}
+          className="w-1/3 bg-gray-100 p-8 text-center items-center justify-center relative"
+        >
           <h3 className="text-2xl font-primary text-gray-700 mb-4">
             Curso de {item.title}
           </h3>
@@ -71,7 +75,7 @@ export default function Payment() {
           {methodForPayment === 0 ? (
             <PixPayment price={String(value)} />
           ) : (
-            <CardPayment />
+            <CardPayment value={String(value)} />
           )}
         </div>
       </div>
