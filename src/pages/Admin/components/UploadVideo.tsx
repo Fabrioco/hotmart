@@ -44,6 +44,8 @@ export const UploadVideo = () => {
         link,
         desc,
         thumbnail: base64String,
+        quantity: 0,
+        rating: 0,
       });
 
       showNotification("Curso postado com sucesso", "success");
