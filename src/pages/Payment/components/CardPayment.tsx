@@ -2,12 +2,22 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useNotification } from "../../../contexts/notificationContext";
 import axios from "axios";
 import React from "react";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../services/firebaseConnection";
+import { useUser } from "../../../contexts/userDataContext";
 
-export const CardPayment = ({ value }: { value: string }) => {
+export const CardPayment = ({
+  value,
+  nameCourse,
+}: {
+  value: string;
+  nameCourse: string;
+}) => {
   const stripe = useStripe();
   const elements = useElements();
 
   const { showNotification } = useNotification();
+  const { user } = useUser();
 
   const valueFormatted = parseInt(value.replace("R$ ", ""));
 
@@ -17,7 +27,6 @@ export const CardPayment = ({ value }: { value: string }) => {
   const [loading, setLoading] = React.useState(false);
   const [name, setName] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
-
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,6 +67,26 @@ export const CardPayment = ({ value }: { value: string }) => {
           }
         } else if (result.paymentIntent?.status === "succeeded") {
           showNotification("Pagamento realizado com sucesso!", "success");
+          setName("");
+          setEmail("");
+          setPaymentError(undefined);
+          const docRef = doc(db, "users", `${user?.uid}`);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const actualsCourses = docSnap.data()?.courses;
+            if (actualsCourses !== undefined) {
+              const newCourses = `${actualsCourses}, ${nameCourse}`;
+              await updateDoc(doc(db, "users", `${user?.uid}`), {
+                courses: newCourses,
+              });
+            } else {
+              const newCourses = `${nameCourse}`;
+              await updateDoc(doc(db, "users", `${user?.uid}`), {
+                courses: newCourses,
+              });
+            }
+          }
         }
       } catch (error) {
         console.error(error);

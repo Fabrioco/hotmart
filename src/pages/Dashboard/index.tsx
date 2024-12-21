@@ -103,7 +103,7 @@ export default function Dashboard() {
           <div className="flex justify-between">
             <h1 className="text-xl font-secondary">Meus Cursos</h1>
 
-            <button onClick={() => navigate(`/mycourses/${uid}`)}>
+            <button onClick={() => navigate(`/mycourses`)}>
               <h2 className="text-xl hover:underline font-secondary text-gray-500">
                 Ver Todos
               </h2>

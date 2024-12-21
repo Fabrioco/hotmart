@@ -75,7 +75,7 @@ export default function Payment() {
           {methodForPayment === 0 ? (
             <PixPayment price={String(value)} />
           ) : (
-            <CardPayment value={String(value)} />
+            <CardPayment value={String(value)} nameCourse={course[0].title} />
           )}
         </div>
       </div>
