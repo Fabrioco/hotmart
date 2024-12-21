@@ -6,7 +6,13 @@ import { FaBell, FaRegStar, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MyCalendar } from "./components/MyCalendar";
 import { SidebarUser } from "./components/sideBarUser";
-import { collection, doc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 
 export type Course = {
@@ -20,13 +26,51 @@ export type Course = {
 };
 
 export default function Dashboard() {
-  const [courses, setCourses] = React.useState<Course[]>([]);
   const navigate = useNavigate();
   const { uid } = useParams();
   const { setUser } = useUser();
 
+  const [courses, setCourses] = React.useState<Course[]>([]);
   const [isOpenSidebarUser, setIsOpenSidebarUser] =
     React.useState<boolean>(false);
+
+  const { user } = useUser();
+  const [myCourses, setMyCourses] = React.useState<Course[]>([]);
+
+  const fetchCourses = async () => {
+    if (!user?.uid) return;
+
+    try {
+      const userDocRef = doc(db, "users", `${user.uid}`);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userCourses = userDocSnap.data().courses;
+
+        const coursesCollectionRef = collection(db, "courses");
+        const coursesSnapshot = await getDocs(coursesCollectionRef);
+
+        const courses = coursesSnapshot.docs.map((doc) => ({
+          title: doc.id,
+          ...doc.data(),
+        })) as Course[];
+
+        const filteredCourses = courses.filter((course) =>
+          userCourses.includes(course.title)
+        );
+
+        setMyCourses(filteredCourses);
+      } else {
+        console.warn("Usuário não encontrado.");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar cursos:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchCourses();
+  });
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -40,16 +84,23 @@ export default function Dashboard() {
 
   const loadCourses = async () => {
     const unsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
-      const data = snapshot.docs.map((doc) => doc.data()) as Course[];
-      setCourses(data);
-      console.log(data);
+      const allCourses = snapshot.docs.map((doc) => ({
+        title: doc.id,
+        ...doc.data(),
+      })) as Course[];
+  
+      const availableCourses = allCourses.filter(
+        (course) => !myCourses.some((myCourse) => myCourse.title === course.title)
+      );
+  
+      setCourses(availableCourses);
     });
     return () => unsubscribe();
   };
 
   React.useEffect(() => {
     loadCourses();
-  }, []);
+  }, );
 
   const fetchStar = async (course: string) => {
     const docSnap = onSnapshot(doc(db, "courses", course), (doc) => {
@@ -110,31 +161,39 @@ export default function Dashboard() {
             </button>
           </div>
           <div className="flex flex-row flex-wrap gap-4 px-4 py-2 h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-[#282828">
-            <div className="w-1/4 min-w-64 h-2/4 flex border rounded-lg">
-              <img
-                src="https://via.placeholder.com/150"
-                alt="imagem do curso"
-                className="rounded-lg"
-              />
-              <div className="flex flex-col justify-around items-center px-2 py-1 text-center">
-                <p className="font-secondary text-xl">Pezinho com degrade</p>
-                <div className="flex flex-row items-center gap-1">
-                  <span>220</span>
-                  <i>
-                    <FaPeopleGroup size={25} />
-                  </i>
+            {myCourses.map((course) => (
+              <div
+                key={course.title}
+                className="w-1/5 min-w-64 h-2/4 flex border rounded-lg"
+              >
+                <img
+                  src={course.thumbnail}
+                  alt="imagem do curso"
+                  className="rounded-lg"
+                />
+                <div className="flex flex-col justify-around items-center px-2 py-1 mx-auto text-center">
+                  <p className="font-secondary text-xl">{course.title}</p>
+                  <div className="flex flex-row items-center gap-1">
+                    <span>{course.quantity}</span>
+                    <i>
+                      <FaPeopleGroup size={25} />
+                    </i>
+                  </div>
+                  <div className="flex flex-row items-center gap-1">
+                    <span>{course.rating}</span>
+                    <i>
+                      <FaStar size={30} color="#ffcb0c" />
+                    </i>
+                  </div>
+                  <button
+                    className="text-gray-400 cursor-pointer"
+                    onClick={() => navigate(`/course/${course.title}`)}
+                  >
+                    Acessar
+                  </button>
                 </div>
-                <div className="flex flex-row items-center gap-1">
-                  <span>4/5</span>
-                  <i>
-                    <FaStar size={30} color="#ffcb0c" />
-                  </i>
-                </div>
-                <button className="text-gray-400 cursor-pointer">
-                  <span>Acessar</span>
-                </button>
               </div>
-            </div>
+            ))}
           </div>
         </div>
         <div className="w-full h-1/2 mt-5 flex justify-between">

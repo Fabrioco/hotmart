@@ -76,7 +76,7 @@ export const CardPayment = ({
           if (docSnap.exists()) {
             const actualsCourses = docSnap.data()?.courses;
             if (actualsCourses !== undefined) {
-              const newCourses = `${actualsCourses}, ${nameCourse}`;
+              const newCourses = `[${actualsCourses}, ${nameCourse}]`;
               await updateDoc(doc(db, "users", `${user?.uid}`), {
                 courses: newCourses,
               });
@@ -88,7 +88,7 @@ export const CardPayment = ({
             }
           }
 
-          navigate('/mycourses')
+          navigate("/mycourses");
         }
       } catch (error) {
         console.error(error);
