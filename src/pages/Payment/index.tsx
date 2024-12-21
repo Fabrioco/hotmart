@@ -3,13 +3,10 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 import { Course } from "../Dashboard";
 import { CardPayment } from "./components/CardPayment";
-import { FaPix } from "react-icons/fa6";
 import { CiCreditCard2 } from "react-icons/ci";
-import { PixPayment } from "./components/PixPayment";
 
 export default function Payment() {
   const [course, setCourse] = React.useState<Course[]>([]);
-  const [methodForPayment, setMethodForPayment] = React.useState<number>(0);
 
   const loadCourses = async () => {
     const docSnap = await getDocs(collection(db, "courses"));
@@ -23,6 +20,7 @@ export default function Payment() {
   }, []);
 
   const value = course.map((item) => item.value);
+  const name = course.map((item) => item.title);
 
   return (
     <div className="flex w-full mx-auto bg-white shadow-md rounded-md overflow-hidden">
@@ -51,20 +49,7 @@ export default function Payment() {
         </h2>
         <div className="flex items-center justify-center gap-5">
           <div
-            className={`w-14 h-14 border-2 border-gray-200 ${
-              methodForPayment === 0 ? "bg-gray-200" : "bg-white"
-            } rounded-md flex items-center justify-center cursor-pointer`}
-            onClick={() => setMethodForPayment(0)}
-          >
-            <i>
-              <FaPix size={30} color="#000" />
-            </i>
-          </div>
-          <div
-            className={`w-14 h-14 border-2 border-gray-200 ${
-              methodForPayment === 1 ? "bg-gray-200" : "bg-white"
-            } rounded-md flex items-center justify-center cursor-pointer`}
-            onClick={() => setMethodForPayment(1)}
+            className="w-14 h-14 border-2 border-gray-200 bg-gray-200 rounded-md flex items-center justify-center cursor-pointer"
           >
             <i>
               <CiCreditCard2 size={30} color="#000" />
@@ -72,11 +57,10 @@ export default function Payment() {
           </div>
         </div>
         <div className="flex items-center justify-center gap-5 w-full">
-          {methodForPayment === 0 ? (
-            <PixPayment price={String(value)} />
-          ) : (
-            <CardPayment value={String(value)} nameCourse={course[0].title} />
-          )}
+          <CardPayment
+            value={String(value)}
+            nameCourse={String(name)}
+          />
         </div>
       </div>
     </div>
