@@ -5,6 +5,7 @@ import React from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../services/firebaseConnection";
 import { useUser } from "../../../contexts/userDataContext";
+import { useNavigate } from "react-router";
 
 export const CardPayment = ({
   value,
@@ -13,6 +14,7 @@ export const CardPayment = ({
   value: string;
   nameCourse: string;
 }) => {
+  const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -67,9 +69,7 @@ export const CardPayment = ({
           }
         } else if (result.paymentIntent?.status === "succeeded") {
           showNotification("Pagamento realizado com sucesso!", "success");
-          setName("");
-          setEmail("");
-          setPaymentError(undefined);
+
           const docRef = doc(db, "users", `${user?.uid}`);
           const docSnap = await getDoc(docRef);
 
@@ -87,6 +87,8 @@ export const CardPayment = ({
               });
             }
           }
+
+          navigate('/mycourses')
         }
       } catch (error) {
         console.error(error);
