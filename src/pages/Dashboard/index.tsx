@@ -88,19 +88,22 @@ export default function Dashboard() {
         title: doc.id,
         ...doc.data(),
       })) as Course[];
-  
+
       const availableCourses = allCourses.filter(
-        (course) => !myCourses.some((myCourse) => myCourse.title === course.title)
+        (course) =>
+          !myCourses.some((myCourse) => myCourse.title === course.title)
       );
-  
+
       setCourses(availableCourses);
     });
     return () => unsubscribe();
   };
 
   React.useEffect(() => {
-    loadCourses();
-  }, );
+    if (myCourses.length) {
+      loadCourses();
+    }
+  }, [myCourses]);
 
   const fetchStar = async (course: string) => {
     const docSnap = onSnapshot(doc(db, "courses", course), (doc) => {
@@ -206,59 +209,58 @@ export default function Dashboard() {
               <span className="text-xl font-secondary">Mais Cursos</span>
             </button>
             <div className="flex flex-row h-[350px] flex-wrap gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-[#282828] pr-2">
-              {courses.map((course) => (
-                <div
-                  key={course.title}
-                  className="xl:w-1/5 xl:min-w-72 xl:h-2/4 h-auto flex xl:flex-row flex-col border rounded-lg"
-                >
-                  <img
-                    src={course.thumbnail}
-                    alt="Erro ao carregar imagem"
-                    className="rounded-lg w-1/2"
-                  />
-                  <div className="flex flex-col justify-around items-center px-2 py-1 w-1/2">
-                    <p className="text-xl font-secondary">{course.title}</p>
-                    <div className="flex flex-row items-center gap-1">
-                      <p className="font-secondary">{course.quantity}</p>
-                      <i>
-                        <FaPeopleGroup size={25} />
-                      </i>
+              <div className="flex flex-row h-[350px] flex-wrap gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-[#282828] pr-2">
+                {courses.map((course) => (
+                  <div
+                    key={course.title}
+                    className="xl:w-1/5 xl:min-w-72 xl:h-2/4 h-auto flex xl:flex-row flex-col border rounded-lg"
+                  >
+                    <img
+                      src={course.thumbnail}
+                      alt="Erro ao carregar imagem"
+                      className="rounded-lg w-1/2"
+                    />
+                    <div className="flex flex-col justify-around items-center px-2 py-1 w-1/2">
+                      <p className="text-xl font-secondary">{course.title}</p>
+                      <div className="flex flex-row items-center gap-1">
+                        <p className="font-secondary">{course.quantity}</p>
+                        <i>
+                          <FaPeopleGroup size={25} />
+                        </i>
+                      </div>
+                      <div className="flex flex-row items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <div key={star}>
+                            <input
+                              type="radio"
+                              name="rating"
+                              id={`star${star}`}
+                              value={star}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={`star${star}`}
+                              className={`star cursor-pointer transition-colors text-yellow-500 text-5xl`}
+                            >
+                              {star <= Number(course.rating) ? (
+                                <FaStar size={20} color="#ffcb0c" />
+                              ) : (
+                                <FaRegStar size={20} color="#ffcb0c" />
+                              )}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary"
+                        onClick={() => navigate(`/payment/${course.title}`)}
+                      >
+                        Comprar <strong>{course.value}</strong>
+                      </button>
                     </div>
-                    <div className="flex flex-row items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <div
-                          key={star}
-                          onClick={() => navigate(`/course/${course.title}`)}
-                        >
-                          <input
-                            type="radio"
-                            name="rating"
-                            id={`star${star}`}
-                            value={star}
-                            className="hidden"
-                          />
-                          <label
-                            htmlFor={`star${star}`}
-                            className={`star cursor-pointer transition-colors text-yellow-500 text-5xl`}
-                          >
-                            {star <= Number(course.rating) ? (
-                              <FaStar size={20} color="#ffcb0c" />
-                            ) : (
-                              <FaRegStar size={20} color="#ffcb0c" />
-                            )}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary"
-                      onClick={() => navigate(`/payment/${course.title}`)}
-                    >
-                      Comprar <strong>{course.value}</strong>
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
           {!isOpenSidebarUser && (
