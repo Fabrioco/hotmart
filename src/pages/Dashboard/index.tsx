@@ -2,14 +2,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { loadDataUser } from "../../hooks/loadDataUser";
 import React from "react";
 import { UserDataProps, useUser } from "../../contexts/userDataContext";
-import { FaBell, FaSearch, FaStar } from "react-icons/fa";
+import { FaBell, FaRegStar, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MyCalendar } from "./components/MyCalendar";
 import { SidebarUser } from "./components/sideBarUser";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 
-type Course = {
+export type Course = {
   title: string;
   desc: string;
   value: string;
@@ -39,14 +39,30 @@ export default function Dashboard() {
   }, [setUser, uid]);
 
   const loadCourses = async () => {
-    const docSnap = await getDocs(collection(db, "courses"));
-    if (docSnap.docs) {
-      setCourses(docSnap.docs.map((doc) => doc.data()) as Course[]);
-    }
+    const unsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
+      const data = snapshot.docs.map((doc) => doc.data()) as Course[];
+      setCourses(data);
+      console.log(data);
+    });
+    return () => unsubscribe();
   };
 
   React.useEffect(() => {
     loadCourses();
+  }, []);
+
+  const fetchStar = async (course: string) => {
+    const docSnap = onSnapshot(doc(db, "courses", course), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data() as Course;
+        console.log(data.rating);
+      }
+    });
+    return () => docSnap();
+  };
+
+  React.useEffect(() => {
+    fetchStar("teste");
   }, []);
 
   return (
@@ -150,10 +166,30 @@ export default function Dashboard() {
                       </i>
                     </div>
                     <div className="flex flex-row items-center gap-1">
-                      <p className="font-secondary">{course.rating}</p>
-                      <i>
-                        <FaStar size={30} color="#ffcb0c" />
-                      </i>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <div
+                          key={star}
+                          onClick={() => navigate(`/course/${course.title}`)}
+                        >
+                          <input
+                            type="radio"
+                            name="rating"
+                            id={`star${star}`}
+                            value={star}
+                            className="hidden"
+                          />
+                          <label
+                            htmlFor={`star${star}`}
+                            className={`star cursor-pointer transition-colors text-yellow-500 text-5xl`}
+                          >
+                            {star <= Number(course.rating) ? (
+                              <FaStar size={20} color="#ffcb0c" />
+                            ) : (
+                              <FaRegStar size={20} color="#ffcb0c" />
+                            )}
+                          </label>
+                        </div>
+                      ))}
                     </div>
                     <button className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary">
                       Comprar <strong>{course.value}</strong>
