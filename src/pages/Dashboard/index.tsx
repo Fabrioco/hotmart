@@ -46,6 +46,7 @@ export default function Dashboard() {
 
       if (userDocSnap.exists()) {
         const userCourses = userDocSnap.data().courses;
+        if (!userCourses) return;
 
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
@@ -59,7 +60,11 @@ export default function Dashboard() {
           userCourses.includes(course.title)
         );
 
-        setMyCourses(filteredCourses);
+        if (filteredCourses.length === 0) {
+          setMyCourses([]);
+        } else {
+          setMyCourses(filteredCourses);
+        }
       } else {
         console.warn("Usuário não encontrado.");
       }
@@ -89,10 +94,12 @@ export default function Dashboard() {
         ...doc.data(),
       })) as Course[];
 
-      const availableCourses = allCourses.filter(
-        (course) =>
-          !myCourses.some((myCourse) => myCourse.title === course.title)
-      );
+      const availableCourses = myCourses
+        ? allCourses.filter(
+            (course) =>
+              !myCourses.some((myCourse) => myCourse.title === course.title)
+          )
+        : allCourses;
 
       setCourses(availableCourses);
     });
@@ -100,16 +107,13 @@ export default function Dashboard() {
   };
 
   React.useEffect(() => {
-    if (myCourses.length) {
-      loadCourses();
-    }
+    loadCourses();
   }, [myCourses]);
 
   const fetchStar = async (course: string) => {
     const docSnap = onSnapshot(doc(db, "courses", course), (doc) => {
       if (doc.exists()) {
-        const data = doc.data() as Course;
-        console.log(data.rating);
+        // const data = doc.data() as Course;
       }
     });
     return () => docSnap();
@@ -172,7 +176,7 @@ export default function Dashboard() {
                 <img
                   src={course.thumbnail}
                   alt="imagem do curso"
-                  className="rounded-lg"
+                  className="rounded-lg w-8/12"
                 />
                 <div className="flex flex-col justify-around items-center px-2 py-1 mx-auto text-center">
                   <p className="font-secondary text-xl">{course.title}</p>
@@ -197,6 +201,11 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+            {!myCourses.length && (
+              <p className="text-xl font-secondary">
+                Você ainda não possui nenhum curso
+              </p>
+            )}
           </div>
         </div>
         <div className="w-full h-1/2 mt-5 flex justify-between">

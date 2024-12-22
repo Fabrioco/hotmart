@@ -2,7 +2,7 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useNotification } from "../../../contexts/notificationContext";
 import axios from "axios";
 import React from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import { db } from "../../../services/firebaseConnection";
 import { useUser } from "../../../contexts/userDataContext";
 import { useNavigate } from "react-router";
@@ -98,6 +98,10 @@ export const CardPayment = ({
               courses: [nameCourse],
             });
           }
+
+          await updateDoc(doc(db, "courses", nameCourse), {
+            quantity: increment(1),
+          });
 
           navigate("/mycourses");
         }
