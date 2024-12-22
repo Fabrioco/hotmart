@@ -117,6 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         "Erro ao fazer login. Verifique suas credenciais.",
         "error"
       );
+      console.log(error);
     }
   };
 

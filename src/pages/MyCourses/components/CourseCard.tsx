@@ -5,8 +5,9 @@ import { FaRegStar, FaShare, FaStar } from "react-icons/fa";
 import { IoArchive } from "react-icons/io5";
 import { MdFavorite } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { Course } from "../../Dashboard";
 
-export const CourseCard = () => {
+export const CourseCard = ({ course }: { course: Course }) => {
   const navigate = useNavigate();
 
   const [isOpenToolbar, setIsOpenToolbar] = React.useState<boolean>(false);
@@ -22,13 +23,13 @@ export const CourseCard = () => {
         <div className="h-full w-full group-hover:bg-black  cursor-pointer group relative">
           <div
             className="bg-black opacity-25 hidden w-full h-full group-hover:flex items-center justify-center absolute top-0 left-0 z-[2]"
-            onClick={() => navigate(`/course/cursodealgumacoisa`)}
+            onClick={() => navigate(`/course/${course.title}`)}
           >
             <BiPlay size={50} color="#fff" />
           </div>
           <img
-            src="https://via.placeholder.com/300"
-            alt=""
+            src={course.thumbnail}
+            alt={course.title}
             className="w-full h-full absolute top-0 left-0"
           />
           <i
@@ -66,12 +67,12 @@ export const CourseCard = () => {
           </div>
         </div>
       </div>
-      <p className="text-2xl font-secondary">titulo do curso</p>
+      <p className="text-2xl font-secondary">{course.title}</p>
       <button
         onClick={() => navigate(`/teacher`)}
         className="text-xl font-secondary text-gray-500"
       >
-        quem fez o curso
+        Fabrício Oliveira Lopes
       </button>
       <div className="w-full relative bg-gray-300 h-1 flex  flex-col items-end">
         <div className="w-1/2 bg-gray-800 absolute top-0 left-0 h-full"></div>

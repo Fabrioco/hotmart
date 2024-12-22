@@ -2,14 +2,30 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useNotification } from "../../../contexts/notificationContext";
 import axios from "axios";
 import React from "react";
+import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
+import { db } from "../../../services/firebaseConnection";
+import { useUser } from "../../../contexts/userDataContext";
+import { useNavigate } from "react-router";
+import { Course } from "../../Dashboard";
 
-export const CardPayment = ({ value }: { value: string }) => {
+export const CardPayment = ({
+  value,
+  nameCourse,
+  setCourse,
+}: {
+  value: string;
+  nameCourse: string;
+  setCourse: React.Dispatch<React.SetStateAction<Course[]>>;
+}) => {
+  const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
 
   const { showNotification } = useNotification();
+  const { user } = useUser();
 
-  const valueFormatted = parseInt(value.replace("R$ ", ""));
+  const formatValue = (value: string) => parseInt(value.replace("R$ ", ""));
+  const valueFormatted = formatValue(value);
 
   const [paymentError, setPaymentError] = React.useState<string | undefined>(
     undefined
@@ -18,8 +34,15 @@ export const CardPayment = ({ value }: { value: string }) => {
   const [name, setName] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
 
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    if (!name.trim()) {
+      setPaymentError("O nome do titular é obrigatório.");
+      return;
+    }
+    if (!email.trim()) {
+      setPaymentError("O e-mail é obrigatório.");
+      return;
+    }
     event.preventDefault();
     if (!stripe || !elements) return;
 
@@ -58,10 +81,37 @@ export const CardPayment = ({ value }: { value: string }) => {
           }
         } else if (result.paymentIntent?.status === "succeeded") {
           showNotification("Pagamento realizado com sucesso!", "success");
+
+          setCourse([]);
+
+          const docRef = doc(db, "users", `${user?.uid}`);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const actualCourses = docSnap.data()?.courses || [];
+            const updatedCourses = [...actualCourses, nameCourse];
+            await updateDoc(doc(db, "users", `${user?.uid}`), {
+              courses: updatedCourses,
+            });
+          } else {
+            await updateDoc(doc(db, "users", `${user?.uid}`), {
+              courses: [nameCourse],
+            });
+          }
+
+          await updateDoc(doc(db, "courses", nameCourse), {
+            quantity: increment(1),
+          });
+
+          navigate("/mycourses");
         }
       } catch (error) {
-        console.error(error);
-        alert("Ocorreu um erro ao processar o pagamento. Tente novamente.");
+        console.error("Erro na API de pagamento:", error);
+        showNotification(
+          "Erro na comunicação com o servidor de pagamento.",
+          "error"
+        );
+        setPaymentError("Erro na API de pagamento.");
       } finally {
         setLoading(false);
       }
