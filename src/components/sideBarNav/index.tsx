@@ -15,13 +15,15 @@ export const SidebarNav = () => {
   const location = useLocation();
   const [isOpenSidebar, setIsOpenSidebar] = React.useState<boolean>(false);
 
-  const isDashboard = /^\/dashboard\/[^/]+$/.test(location.pathname);
-  const isMyCourses = /^\/mycourses\/[^/]+$/.test(location.pathname);
-  const isRefunds = location.pathname === "/refunds" ? true : false;
-  const isMessages = location.pathname === "/messages" ? true : false;
-  const isNeedHelp = location.pathname === "/needhelp" ? true : false;
-  const isSettings = /^\/setting\/[^/]+$/.test(location.pathname);
+  const isActiveRoute = (route: string) => location.pathname === route;
 
+  const isDashboard = isActiveRoute("/dashboard");
+  const isMyCourses = isActiveRoute("/mycourses");
+  const isRefunds = isActiveRoute("/refunds");
+  const isMessages = isActiveRoute("/messages");
+  const isNeedHelp = isActiveRoute("/needhelp");
+  const isSettings = isActiveRoute("/settings");
+  
   const navigate = useNavigate();
 
   const { logOut } = useAuth();
