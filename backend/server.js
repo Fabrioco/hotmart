@@ -31,5 +31,20 @@ app.post("/create-payment-intent", async (req, res) => {
   }
 });
 
+app.post("/refun", async (req, res) => {
+  try {
+    const { paymentIntentId, amount } = req.body;
+
+    // Vai criar o reembolso
+    const refund = await stripe.refunds.create({
+      amount: amount,
+    });
+    res.status(200).json({ success: true, refund });
+  } catch (error) {
+    console.log("Erro ao provessar reembolso:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
