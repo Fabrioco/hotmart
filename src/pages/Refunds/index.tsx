@@ -44,6 +44,10 @@ export default function Refunds() {
         Os reembolsos são permitidos durante um prazo de 7 dias e tenha feito
         menos de 20% do curso.
       </p>
+      <p className="font-secondary text-gray-500 text-justify">
+        <strong>Observação:</strong> Se você já fez o reembolso do curso, ele
+        não pode ser reembolsado novamente.
+      </p>
       <div className="w-11/12 h-full border-y border-gray-200 mt-5 p-2 overflow-y-auto gap-2">
         {courses.map((courseData, index) => (
           <CourseInfo

@@ -1,8 +1,18 @@
-import { doc, getDoc } from "firebase/firestore";
+import {
+  arrayRemove,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { db } from "../../../services/firebaseConnection";
 import { Course } from "../../Dashboard";
 import React from "react";
+import axios from "axios";
+import { useNotification } from "../../../contexts/notificationContext";
+import { useUser } from "../../../contexts/userDataContext";
 
 export type CourseProps = {
   title: string;
@@ -10,7 +20,17 @@ export type CourseProps = {
   paiedDate: string;
 };
 
+type PaymentType = {
+  owner: string;
+  paymentIdentification: string;
+  value: number;
+  date: Date;
+  course: string;
+};
+
 export const CourseInfo = ({ title, paiedValue, paiedDate }: CourseProps) => {
+  const { user } = useUser();
+  const { showNotification } = useNotification();
   const [course, setCourse] = React.useState<Course[]>([]);
 
   // Função que verifica e formata a data correta
@@ -26,7 +46,7 @@ export const CourseInfo = ({ title, paiedValue, paiedDate }: CourseProps) => {
     return date; // Aí se for Date, retorna sem alteração
   };
 
-  // Converte a string de data para Date
+  // Converte a data de string para Date
   const paiedDateObject = parseDate(paiedDate);
 
   // Função que adiciona os 7 dias
@@ -59,7 +79,52 @@ export const CourseInfo = ({ title, paiedValue, paiedDate }: CourseProps) => {
 
   React.useEffect(() => {
     fetchCourse();
-  }, []);
+  }, [title, () => requestRefund()]);
+
+  const requestRefund = async () => {
+    try {
+      const paiedValueFormatted = paiedValue
+        .replace("R$ ", "")
+        .replace(",", ".");
+      const paymentsSnap = await getDocs(collection(db, "payments"));
+
+      const payments: PaymentType[] = paymentsSnap.docs.map(
+        (doc) => doc.data() as PaymentType
+      );
+
+      const userPayment = payments.find(
+        (payment) => payment.owner === user?.uid && payment.course === title
+      );
+
+      if (userPayment) {
+        const response = await axios.post("http://localhost:3000/refund", {
+          paymentIntentId: userPayment.paymentIdentification,
+          amount: parseFloat(paiedValueFormatted),
+        });
+
+        if (response.data.success) {
+          showNotification("Reembolso solicitado com sucesso", "success");
+          await updateDoc(
+            doc(db, "payments", userPayment.paymentIdentification),
+            {
+              situation: "Reembolso solicitado",
+            }
+          );
+          await updateDoc(doc(db, "users", user?.uid as string), {
+            courses: arrayRemove(`${title}, ${paiedValue}, ${paiedDate}`),
+          });
+        } else {
+          showNotification("Erro ao solicitar reembolso.", "error");
+          console.error("Erro no reembolso:", response.data.error);
+        }
+      } else {
+        showNotification("Pagamento não encontrado.", "error");
+      }
+    } catch (error) {
+      console.error("Erro ao solicitar reembolso:", error);
+      showNotification("Erro ao solicitar reembolso.", "error");
+    }
+  };
 
   return (
     <>
@@ -81,7 +146,7 @@ export const CourseInfo = ({ title, paiedValue, paiedDate }: CourseProps) => {
             </div>
             <div className="flex flex-row gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <div key={star}  className="flex flex-row items-center">
+                <div key={star} className="flex flex-row items-center">
                   <input
                     type="radio"
                     name="rating"
@@ -105,11 +170,14 @@ export const CourseInfo = ({ title, paiedValue, paiedDate }: CourseProps) => {
           </div>
           <div className="font-secondary text-xl">
             <p>
-              Valor pago: <strong>R$ {paiedValue}</strong>
+              Valor pago: <strong>{paiedValue}</strong>
             </p>
           </div>
           <div className="flex flex-col items-center">
-            <button className="px-4 py-2 bg-gray-300 font-tertiary text-xl rounded active:bg-gray-400">
+            <button
+              className="px-4 py-2 bg-gray-300 font-tertiary text-xl rounded active:bg-gray-400"
+              onClick={requestRefund}
+            >
               Reembolsar
             </button>
             <p className="text-xs text-gray-400">

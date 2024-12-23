@@ -38,35 +38,41 @@ export default function Dashboard() {
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
 
   const fetchCourses = async () => {
-    if (!user?.uid) return;
-
     try {
-      const userDocRef = doc(db, "users", `${user.uid}`);
+      // Referência ao documento do usuário no Firestore
+      const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        const userCourses = userDocSnap.data().courses;
-        if (!userCourses) return;
+        // Obtém os cursos salvos do usuário
+        const rawCourses = userDocSnap.data().courses || [];
+        const formattedCourses = rawCourses.map((course: string) => {
+          const parts = course.split(", ");
+          return { title: parts[0], paiedValue: parts[1], paiedDate: parts[2] };
+        });
 
+        // Referência à coleção de cursos no Firestore
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
 
+        // Lista de todos os cursos disponíveis
         const courses = coursesSnapshot.docs.map((doc) => ({
           title: doc.id,
           ...doc.data(),
-        })) as Course[];
+        }));
 
+        // Filtra os cursos que correspondem aos títulos do usuário
         const filteredCourses = courses.filter((course) =>
-          userCourses.includes(course.title)
+          formattedCourses.some(
+            (formattedCourse: Course) => formattedCourse.title === course.title
+          )
         );
 
-        if (filteredCourses.length === 0) {
-          setMyCourses([]);
-        } else {
-          setMyCourses(filteredCourses);
-        }
+        // Define os cursos encontrados ou limpa a lista
+        setMyCourses(filteredCourses as Course[]);
       } else {
-        console.warn("Usuário não encontrado.");
+        console.log("Nenhum dado encontrado para o usuário.");
+        setMyCourses([]);
       }
     } catch (error) {
       console.error("Erro ao buscar cursos:", error);

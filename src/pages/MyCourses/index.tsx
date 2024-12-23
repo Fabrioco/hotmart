@@ -8,41 +8,55 @@ import { Course } from "../Dashboard";
 export default function MyCourses() {
   const { user } = useUser();
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const fetchCourses = async () => {
-    if (!user?.uid) return;
-
+  const fetchCourses = React.useCallback(async () => {
     try {
-      const userDocRef = doc(db, "users", `${user.uid}`);
+      const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        const userCourses = userDocSnap.data().courses;
+        const rawCourses: string[] = userDocSnap.data().courses || [];
+
+        const formattedCourses = rawCourses.map((course) => {
+          const [title, paiedValue, paiedDate] = course.split(", ");
+          return { title, paiedValue, paiedDate };
+        });
 
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
 
-        const courses = coursesSnapshot.docs.map((doc) => ({
+        const allCourses = coursesSnapshot.docs.map((doc) => ({
           title: doc.id,
           ...doc.data(),
         })) as Course[];
 
-        const filteredCourses = courses.filter((course) =>
-          userCourses.includes(course.title)
+        const filteredCourses = allCourses.filter((course) =>
+          formattedCourses.some((formatted) => formatted.title === course.title)
         );
 
         setMyCourses(filteredCourses);
-      } else {
-        console.warn("Usuário não encontrado.");
       }
-    } catch (error) {
-      console.error("Erro ao buscar cursos:", error);
+    } catch (err) {
+      console.error("Erro ao buscar cursos:", err);
+      setError("Erro ao buscar cursos. Tente novamente mais tarde.");
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [user?.uid]);
 
   React.useEffect(() => {
     fetchCourses();
-  });
+  }, [fetchCourses]);
+
+  if (loading) {
+    return <div className="text-center text-white">Carregando...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
 
   return (
     <div className="w-full h-full flex flex-col justify-around">
@@ -57,9 +71,15 @@ export default function MyCourses() {
         </div>
       </div>
       <div className="w-full h-full flex gap-5 flex-wrap mx-auto justify-center overflow-y-auto bg-white py-10 rounded-b-md">
-        {myCourses.map((course) => (
-          <CourseCard key={course.title} course={course} />
-        ))}
+        {myCourses.length > 0 ? (
+          myCourses.map((course) => (
+            <CourseCard key={course.title} course={course} />
+          ))
+        ) : (
+          <div className="text-center text-gray-500">
+            Nenhum curso encontrado.
+          </div>
+        )}
       </div>
     </div>
   );
