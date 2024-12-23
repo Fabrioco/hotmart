@@ -2,7 +2,7 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useNotification } from "../../../contexts/notificationContext";
 import axios from "axios";
 import React from "react";
-import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
+import { doc, getDoc, increment, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../services/firebaseConnection";
 import { useUser } from "../../../contexts/userDataContext";
 import { useNavigate } from "react-router";
@@ -33,6 +33,17 @@ export const CardPayment = ({
   const [loading, setLoading] = React.useState(false);
   const [name, setName] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
+
+  const formaterDate = (date: Date) => {
+    const [day, month, year] = date
+      .toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      .split("/");
+    return `${year}-${month}-${day}`;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     if (!name.trim()) {
@@ -81,6 +92,15 @@ export const CardPayment = ({
           }
         } else if (result.paymentIntent?.status === "succeeded") {
           showNotification("Pagamento realizado com sucesso!", "success");
+          const identification = result.paymentIntent.id;
+
+          await setDoc(doc(db, "payments", identification), {
+            owner: user?.uid,
+            course: nameCourse,
+            value: valueFormatted,
+            date: formaterDate(new Date()),
+            paymentIdentification: identification,
+          });
 
           setCourse([]);
 
@@ -89,7 +109,10 @@ export const CardPayment = ({
 
           if (docSnap.exists()) {
             const actualCourses = docSnap.data()?.courses || [];
-            const updatedCourses = [...actualCourses, nameCourse];
+            const course = `${nameCourse}, ${value}, ${formaterDate(
+              new Date()
+            )}`;
+            const updatedCourses = [...actualCourses, course];
             await updateDoc(doc(db, "users", `${user?.uid}`), {
               courses: updatedCourses,
             });
