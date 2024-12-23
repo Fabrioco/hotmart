@@ -4,13 +4,13 @@ Este é um projeto completo de uma plataforma de vendas de cursos inspirado no H
 
 ## 🚀 Tecnologias Utilizadas
 
-### Frontend
+### Front-end
 - **React.js**: Biblioteca para construção de interfaces de usuário.
 - **TailwindCSS**: Framework CSS para estilização rápida e customizável.
 - **TypeScript**: Superconjunto do JavaScript para tipagem estática.
 - **Context API**: Gerenciamento de estado global no React.
 
-### Backend
+### Back-end
 - **Node.js**: Ambiente de execução para JavaScript no servidor.
 - **Firebase**: Usado para autenticação e banco de dados em tempo real.
 
