@@ -1,4 +1,4 @@
-# 💻 Venda de Curso - Plataforma Hotmart Clone
+# 💻 Venda de Curso - Plataforma Hotmart
 
 Este é um projeto completo de uma plataforma de vendas de cursos inspirado no Hotmart. A aplicação possui frontend e backend desenvolvidos com tecnologias modernas para oferecer uma experiência rica e responsiva. 
 
