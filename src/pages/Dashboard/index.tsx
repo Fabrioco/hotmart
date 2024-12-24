@@ -23,6 +23,7 @@ export type Course = {
   thumbnail: string;
   rating?: number;
   quantity?: number;
+  valueDiscount: string;
 };
 
 export default function Dashboard() {

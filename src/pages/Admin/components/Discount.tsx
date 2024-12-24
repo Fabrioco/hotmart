@@ -1,36 +1,68 @@
 import React from "react";
 import { db } from "../../../services/firebaseConnection";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteField,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 import { useNotification } from "../../../contexts/notificationContext";
+import { Course } from "../../Dashboard";
 
 export const Discount = () => {
   const [title, setTitle] = React.useState<string>("");
   const [value, setValue] = React.useState<string>("");
-  const [courses, setCourses] = React.useState<string[]>([]);
+  const [valueDiscout, setValueDiscount] = React.useState<string>("");
+  const [courses, setCourses] = React.useState<Course[]>([]);
 
   const { showNotification } = useNotification();
 
-  const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeValueDiscount = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     let inputValue = e.target.value;
 
     inputValue = inputValue.replace(/[^0-9,]/g, "").replace(",", ".");
 
     if (inputValue) {
-      setValue("R$ " + parseFloat(inputValue));
+      setValueDiscount("R$ " + parseFloat(inputValue));
     } else {
-      setValue("");
+      setValueDiscount("");
     }
   };
 
   const loadCourses = async () => {
     await getDocs(collection(db, "courses")).then((snapshot) => {
-      setCourses(snapshot.docs.map((doc) => doc.data().title));
+      const courses = snapshot.docs.map((doc) => doc.data()) as Course[];
+      setCourses(courses);
     });
   };
 
   React.useEffect(() => {
     loadCourses();
   }, []);
+
+  React.useEffect(() => {
+    if (!title) {
+      setValue("");
+    }
+  }, [title]);
+
+  React.useEffect(() => {
+    const fetchCourse = async () => {
+      if (!title) return;
+      const docRef = doc(db, "courses", title);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setValue(docSnap.data().value);
+        setValueDiscount(docSnap.data().valueDiscount);
+      }
+    };
+    fetchCourse();
+  }, [title]);
 
   const handleApplyDiscount = async () => {
     if (!title || !value) {
@@ -48,10 +80,27 @@ export const Discount = () => {
       });
   };
 
+  const handleRemoveDiscount = async () => {
+    if (!title) {
+      showNotification("Selecione um curso", "error");
+      return;
+    }
+    await updateDoc(doc(db, "courses", title), {
+      valueDiscount: deleteField(),
+    })
+      .then(() => {
+        showNotification("Desconto removido com sucesso", "success");
+        setTitle("");
+      })
+      .catch(() => {
+        showNotification("Erro ao remover desconto", "error");
+      });
+  };
+
   return (
     <div className="w-6/12 h-auto rounded-md p-5 shadow-md bg-white">
       <h1 className="font-primary text-3xl text-center mb-5">
-        Aplicar desconto
+        Aplicar/Remover desconto
       </h1>
       <div className="w-full h-auto flex flex-col gap-2">
         <div className="flex items-center gap-2">
@@ -61,9 +110,9 @@ export const Discount = () => {
             onChange={(e) => setTitle(e.target.value)}
           >
             <option value="">Selecione um curso</option>
-            {courses.map((title) => (
-              <option value={title} key={title}>
-                {title}
+            {courses.map((course) => (
+              <option value={course.title} key={course.title}>
+                {course.title}
               </option>
             ))}
           </select>
@@ -71,16 +120,32 @@ export const Discount = () => {
         <input
           type="text"
           value={value}
-          onChange={handleChangeValue}
+          placeholder="Original"
+          disabled
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+        />
+        <input
+          type="text"
+          value={valueDiscout}
+          placeholder="Desconto"
+          onChange={handleChangeValueDiscount}
           className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
         />
       </div>
-      <button
-        className="w-full px-4 py-2 bg-gray-500 font-tertiary text-xl rounded hover:bg-gray-600 text-white mt-4"
-        onClick={handleApplyDiscount}
-      >
-        Aplicar
-      </button>
+      <div className="flex gap-2">
+        <button
+          className="w-1/2 px-4 py-2 bg-gray-500 font-tertiary text-xl rounded hover:bg-gray-600 text-white mt-4"
+          onClick={handleApplyDiscount}
+        >
+          Aplicar
+        </button>
+        <button
+          className="w-1/2 px-4 py-2 bg-red-500 font-tertiary text-xl rounded hover:bg-red-600 text-white mt-4"
+          onClick={handleRemoveDiscount}
+        >
+          Remover
+        </button>
+      </div>
     </div>
   );
 };
