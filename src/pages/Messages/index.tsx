@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import React from "react";
 import { db } from "../../services/firebaseConnection";
 
@@ -13,9 +13,13 @@ export default function Messages() {
   const [messages, setMessages] = React.useState<Message[]>([]);
 
   const loadMessages = async () => {
-    await getDocs(collection(db, "notifications")).then((snapshot) => {
-      setMessages(snapshot.docs.map((doc) => doc.data()) as Message[]);
-    });
+    const q = query(collection(db, "notifications"), orderBy("date", "asc"));
+    const querySnapshot = await getDocs(q);
+    const loadedMessages: Message[] = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+    })) as Message[];
+
+    setMessages(loadedMessages);
   };
 
   React.useEffect(() => {
@@ -33,14 +37,18 @@ export default function Messages() {
           />
           <p className="text-2xl font-secondary">Nome do professor</p>
         </div>
-        <div className="w-full h-full bg-gray-50 p-4">
+        <div className="w-full h-full bg-gray-50 p-4 overflow-y-auto">
           {messages.map((message) => (
             <div className="bg-white w-8/12 h-auto rounded-md border border-gray-400 shadow-2xl px-4 py-2 mt-4 flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <h2 className="font-primary text-3xl">{message.title}</h2>
-                <p className="font-secondary text-2xl">{message.description}</p>
+              <div className="flex flex-col break-words overflow-hidden">
+                <h2 className="font-primary text-3xl break-words">
+                  {message.title}
+                </h2>
+                <p className="font-secondary text-2xl break-words">
+                  {message.description}
+                </p>
               </div>
-              <div>
+              <div className="text-right">
                 <p className="font-tertiary text-xl">{message.date}</p>
                 <p className="font-tertiary text-xl">{message.hour}</p>
               </div>

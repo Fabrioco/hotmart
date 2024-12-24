@@ -17,7 +17,7 @@ import Messages from "../pages/Messages";
 import Private from "./private";
 import Admin from "../pages/Admin";
 import Payment from "../pages/Payment";
-import { PrivateAdminRoute } from "./PrivateAdminRoute";
+import { PrivateAdminRoute } from "./privateAdminRoute";
 
 export const RouterApp = () => {
   const location = useLocation();
