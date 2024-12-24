@@ -27,7 +27,7 @@ export const SendNotification = () => {
   };
 
   return (
-    <div className="w-5/12 h-auto rounded-md p-5 shadow-md bg-white">
+    <div className="w-6/12 h-auto rounded-md p-5 shadow-md bg-white">
       <h1 className="font-primary text-3xl text-center mb-5">
         Mandar notificação
       </h1>
