@@ -1,7 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import React from "react";
 import { db } from "../services/firebaseConnection";
-import { setuid } from "process";
 interface UserDataContextType {
   user: UserDataProps | null;
   setUser: React.Dispatch<React.SetStateAction<UserDataProps | null>>;
@@ -12,7 +11,7 @@ export interface UserDataProps {
   name: string;
   email: string;
   password: string;
-  isTeacher: boolean;
+  isAdmin?: boolean;
 }
 
 const UserDataContext = React.createContext<UserDataContextType | undefined>(

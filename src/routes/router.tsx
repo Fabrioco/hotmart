@@ -17,6 +17,7 @@ import Messages from "../pages/Messages";
 import Private from "./private";
 import Admin from "../pages/Admin";
 import Payment from "../pages/Payment";
+import { PrivateAdminRoute } from "./PrivateAdminRoute";
 
 export const RouterApp = () => {
   const location = useLocation();
@@ -83,7 +84,14 @@ export const RouterApp = () => {
                 </Private>
               }
             />
-            <Route path="/admin" element={<Admin />} />
+            <Route
+              path="/admin"
+              element={
+                <PrivateAdminRoute>
+                  <Admin />
+                </PrivateAdminRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
