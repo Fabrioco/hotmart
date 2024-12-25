@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
 
   const fetchCourses = async () => {
+    if (!user?.uid) return;
     try {
       // Referência ao documento do usuário no Firestore
       const userDocRef = doc(db, "users", `${user?.uid}`);
@@ -82,7 +83,7 @@ export default function Dashboard() {
 
   React.useEffect(() => {
     fetchCourses();
-  });
+  }, [user?.uid]);
 
   React.useEffect(() => {
     const loadData = async () => {
