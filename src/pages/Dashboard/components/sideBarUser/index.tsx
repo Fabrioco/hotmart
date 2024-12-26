@@ -19,9 +19,13 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
 }) => {
   const { user } = useUser();
 
-  const [profilePhoto, setProfilePhoto] = React.useState<string>(
-    `${user?.profilePhoto}`
-  );
+  const [profilePhoto, setProfilePhoto] = React.useState<string>("");
+
+  React.useEffect(() => {
+    if (user?.profilePhoto) {
+      setProfilePhoto(user.profilePhoto);
+    }
+  }, [user]);
 
   const day = new Date().toLocaleDateString("pt-BR", { day: "2-digit" });
 
@@ -109,7 +113,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
                 alt="foto de perfil"
                 className="rounded-full w-16 h-16 cursor-pointer"
               />
-              <div className="group w-full h-full absolute top-0 left-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-full">
+              <div className="group w-full h-full absolute top-0 left-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 <input
                   type="file"
                   id="fileUpload"

@@ -11,6 +11,7 @@ import { PiMoney } from "react-icons/pi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/authContext";
 import { RiAdminLine } from "react-icons/ri";
+import { useUser } from "../../contexts/userDataContext";
 
 export const SidebarNav = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ export const SidebarNav = () => {
   const navigate = useNavigate();
 
   const { logOut } = useAuth();
+  const { user } = useUser();
 
   const handleLogout = () => {
     logOut();
@@ -179,23 +181,25 @@ export const SidebarNav = () => {
             Configurações
           </p>
         </div>
-        <div
-          className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer ${
-            isAdmin && "bg-gray-600 bg-opacity-40 rounded-md"
-          }`}
-          onClick={() => navigate("/admin")}
-        >
-          <i>
-            <RiAdminLine size={25} color="#fff" />
-          </i>
-          <p
-            className={`text-xl text-white font-secondary ${
-              isOpenSidebar ? "block" : "hidden"
+        {user?.isAdmin && (
+          <div
+            className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer ${
+              isAdmin && "bg-gray-600 bg-opacity-40 rounded-md"
             }`}
+            onClick={() => navigate("/admin")}
           >
-            Adminstrador
-          </p>
-        </div>
+            <i>
+              <RiAdminLine size={25} color="#fff" />
+            </i>
+            <p
+              className={`text-xl text-white font-secondary ${
+                isOpenSidebar ? "block" : "hidden"
+              }`}
+            >
+              Adminstrador
+            </p>
+          </div>
+        )}
         <div
           className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer absolute bottom-0`}
           onClick={handleLogout}
