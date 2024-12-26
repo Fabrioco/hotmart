@@ -23,7 +23,7 @@ export type Course = {
   thumbnail: string;
   rating?: number;
   quantity?: number;
-  valueDiscount: string;
+  valueDiscount?: string;
 };
 
 export default function Dashboard() {
@@ -41,36 +41,30 @@ export default function Dashboard() {
   const fetchCourses = async () => {
     if (!user?.uid) return;
     try {
-      // Referência ao documento do usuário no Firestore
       const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        // Obtém os cursos salvos do usuário
         const rawCourses = userDocSnap.data().courses || [];
         const formattedCourses = rawCourses.map((course: string) => {
           const parts = course.split(", ");
           return { title: parts[0], paiedValue: parts[1], paiedDate: parts[2] };
         });
 
-        // Referência à coleção de cursos no Firestore
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
 
-        // Lista de todos os cursos disponíveis
         const courses = coursesSnapshot.docs.map((doc) => ({
           title: doc.id,
           ...doc.data(),
         }));
 
-        // Filtra os cursos que correspondem aos títulos do usuário
         const filteredCourses = courses.filter((course) =>
           formattedCourses.some(
             (formattedCourse: Course) => formattedCourse.title === course.title
           )
         );
 
-        // Define os cursos encontrados ou limpa a lista
         setMyCourses(filteredCourses as Course[]);
       } else {
         console.log("Nenhum dado encontrado para o usuário.");
@@ -157,7 +151,7 @@ export default function Dashboard() {
                 onClick={() => setIsOpenSidebarUser(!isOpenSidebarUser)}
               >
                 <img
-                  src="https://via.placeholder.com/150"
+                  src={user?.profilePhoto}
                   alt="foto"
                   className="w-full h-full rounded-2xl"
                 />

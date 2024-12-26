@@ -1,9 +1,12 @@
 import React from "react";
 import { BiBookAlt } from "react-icons/bi";
-import { FaBell } from "react-icons/fa";
+import { FaArrowAltCircleUp, FaBell } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 import { Graphics } from "./components/Graphics";
 import { useUser } from "../../../../contexts/userDataContext";
+import imageCompression from "browser-image-compression";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../services/firebaseConnection";
 
 type SidebarUserProps = {
   isOpenSidebarUser: boolean;
@@ -15,6 +18,10 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
   setIsOpenSidebarUser,
 }) => {
   const { user } = useUser();
+
+  const [profilePhoto, setProfilePhoto] = React.useState<string>(
+    `${user?.profilePhoto}`
+  );
 
   const day = new Date().toLocaleDateString("pt-BR", { day: "2-digit" });
 
@@ -33,6 +40,45 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
       .charAt(0)
       .toUpperCase() +
     new Date().toLocaleDateString("pt-BR", { weekday: "long" }).slice(1);
+
+  const compressAndConvertToBase64 = async (file: File) => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    const compressedFile = await imageCompression(file, options);
+
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(compressedFile);
+      reader.onload = () => {
+        if (reader.result) {
+          resolve(reader.result.toString());
+        } else {
+          reject("Erro ao converter a imagem para Base64");
+        }
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      try {
+        const base64Image = await compressAndConvertToBase64(selectedFile);
+        setProfilePhoto(base64Image);
+        if (!user?.uid) return;
+        await updateDoc(doc(db, "users", user?.uid), {
+          profilePhoto: base64Image,
+        });
+      } catch (error) {
+        console.error("Erro ao carregar a imagem:", error);
+      }
+    }
+  };
 
   return (
     <div
@@ -57,11 +103,28 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
             <i className="cursor-pointer">
               <FaBell size={30} color="#a1a1a1" />
             </i>
-            <img
-              src="https://via.placeholder.com/150"
-              alt="foto de perfil"
-              className="rounded-full w-16 h-16 cursor-pointer"
-            />
+            <div className="cursor-pointer relative group">
+              <img
+                src={profilePhoto}
+                alt="foto de perfil"
+                className="rounded-full w-16 h-16 cursor-pointer"
+              />
+              <div className="group w-full h-full absolute top-0 left-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-full">
+                <input
+                  type="file"
+                  id="fileUpload"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                />
+                <label
+                  htmlFor="fileUpload"
+                  className="w-full h-full cursor-pointer group-hover:bg-black group-hover:bg-opacity-50 rounded-full flex items-center justify-center"
+                >
+                  <FaArrowAltCircleUp size={30} color="#f2f2f2" />
+                </label>
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex justify-between">
