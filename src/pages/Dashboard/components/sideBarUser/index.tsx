@@ -5,8 +5,10 @@ import { BsGraphUpArrow } from "react-icons/bs";
 import { Graphics } from "./components/Graphics";
 import { useUser } from "../../../../contexts/userDataContext";
 import imageCompression from "browser-image-compression";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../services/firebaseConnection";
+import { Course } from "../..";
+import { useNavigate } from "react-router";
 
 type SidebarUserProps = {
   isOpenSidebarUser: boolean;
@@ -17,9 +19,11 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
   isOpenSidebarUser,
   setIsOpenSidebarUser,
 }) => {
+  const navigate = useNavigate();
   const { user } = useUser();
 
   const [profilePhoto, setProfilePhoto] = React.useState<string>("");
+  const [course, setCourse] = React.useState<Course[] | null>(null);
 
   React.useEffect(() => {
     if (user?.profilePhoto) {
@@ -84,6 +88,24 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
     }
   };
 
+  const fetchVideo = async () => {
+    try {
+      const docSnap = await getDoc(doc(db, "courses", `${user?.lastAccess}`));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setCourse([data as Course]);
+      } else {
+        console.log("Não foi possível encontrar o vídeo");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchVideo();
+  }, [user?.lastAccess]);
+
   return (
     <div
       className={`${
@@ -144,21 +166,27 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
         </div>
         <div className="w-full">
           <h1 className="text-2xl">Ultima Aula</h1>
-          <div className="border border-gray-400 w-full h-20 rounded-md flex flex-row justify-around items-center cursor-pointer">
-            <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center">
-              <i>
-                <BiBookAlt size={30} color="#fff" />
-              </i>
+          {course?.map((item) => (
+            <div
+              className="border border-gray-400 w-full h-20 rounded-md flex flex-row justify-around items-center cursor-pointer"
+              key={item.title}
+              onClick={() => navigate(`/course/${item.title}`)}
+            >
+              <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center">
+                <i>
+                  <BiBookAlt size={30} color="#fff" />
+                </i>
+              </div>
+              <div>
+                <p className="text-xl font-secondary">{item.title}</p>
+              </div>
+              <img
+                src={item.thumbnail}
+                alt={item.title}
+                className="w-16 h-16 rounded-md"
+              />
             </div>
-            <div>
-              <p className="text-xl font-secondary">Pezinho com degrade</p>
-            </div>
-            <img
-              src="https://via.placeholder.com/150"
-              alt="foto da aula"
-              className="p-2 rounded-2xl h-full w-auto"
-            />
-          </div>
+          ))}
           <h2 className="text-xl mt-4">Informações Gerais</h2>
           <div className="border border-gray-400 w-full h-20 rounded-md flex flex-row justify-around items-center">
             <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center">

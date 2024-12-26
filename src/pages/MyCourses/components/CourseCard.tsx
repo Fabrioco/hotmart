@@ -6,9 +6,13 @@ import { IoArchive } from "react-icons/io5";
 import { MdFavorite } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { Course } from "../../Dashboard";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../services/firebaseConnection";
+import { useUser } from "../../../contexts/userDataContext";
 
 export const CourseCard = ({ course }: { course: Course }) => {
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const [isOpenToolbar, setIsOpenToolbar] = React.useState<boolean>(false);
   const [rating, setRating] = React.useState<number>(0);
@@ -17,13 +21,20 @@ export const CourseCard = ({ course }: { course: Course }) => {
     setRating(star);
   };
 
+  const handleNavigate = async () => {
+    await updateDoc(doc(db, "users", user?.uid as string), {
+      lastAccess: course.title as string,
+    });
+    navigate(`/course/${course.title}`);
+  };
+
   return (
     <div className="w-72 h-[300px] border border-gray-300 rounded-lg p-2 relative ">
       <div className="h-1/2 w-full ">
         <div className="h-full w-full group-hover:bg-black  cursor-pointer group relative">
           <div
             className="bg-black opacity-25 hidden w-full h-full group-hover:flex items-center justify-center absolute top-0 left-0 z-[2]"
-            onClick={() => navigate(`/course/${course.title}`)}
+            onClick={handleNavigate}
           >
             <BiPlay size={50} color="#fff" />
           </div>

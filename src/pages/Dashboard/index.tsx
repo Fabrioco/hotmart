@@ -14,6 +14,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
+import { NavigateCourse } from "../../components/Buttons/navigateCourse";
 
 export type Course = {
   title: string;
@@ -37,6 +38,7 @@ export default function Dashboard() {
 
   const { user } = useUser();
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
 
   const fetchCourses = async () => {
     if (!user?.uid) return;
@@ -72,6 +74,8 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Erro ao buscar cursos:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -125,6 +129,14 @@ export default function Dashboard() {
     fetchStar("teste");
   }, []);
 
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <h1 className="text-3xl">Carregando...</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full flex flex-row justify-between">
       <div className="flex flex-col w-full">
@@ -173,7 +185,7 @@ export default function Dashboard() {
             {myCourses.map((course) => (
               <div
                 key={course.title}
-                className="w-1/5 min-w-64 h-2/4 flex border rounded-lg"
+                className="w-1/4 min-w-64 h-40 flex border rounded-lg"
               >
                 <img
                   src={course.thumbnail}
@@ -194,12 +206,7 @@ export default function Dashboard() {
                       <FaStar size={30} color="#ffcb0c" />
                     </i>
                   </div>
-                  <button
-                    className="text-gray-400 cursor-pointer"
-                    onClick={() => navigate(`/course/${course.title}`)}
-                  >
-                    Acessar
-                  </button>
+                  <NavigateCourse course={course.title}>Acessar</NavigateCourse>
                 </div>
               </div>
             ))}

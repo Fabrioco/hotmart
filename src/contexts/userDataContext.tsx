@@ -13,6 +13,7 @@ export interface UserDataProps {
   password: string;
   isAdmin?: boolean;
   profilePhoto?: string;
+  lastAccess: string;
 }
 
 const UserDataContext = React.createContext<UserDataContextType | undefined>(
