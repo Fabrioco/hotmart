@@ -30,6 +30,7 @@ export default function Register() {
     e.preventDefault();
     if (!acceptedTerms) {
       showNotification("Aceite os termos", "error");
+      return;
     }
     if (!emailInput || !passwordInput) {
       showNotification("Preencha todos os campos", "error");
@@ -39,6 +40,7 @@ export default function Register() {
       setLoading(true);
       signUp(nameInput, emailInput, passwordInput);
     } catch (error) {
+      console.log(error);
       showNotification("Verifique suas credenciais", "error");
     } finally {
       setLoading(false);
