@@ -94,8 +94,6 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
       if (docSnap.exists()) {
         const data = docSnap.data();
         setCourse([data as Course]);
-      } else {
-        console.log("Não foi possível encontrar o vídeo");
       }
     } catch (error) {
       console.log(error);
@@ -166,27 +164,31 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
         </div>
         <div className="w-full">
           <h1 className="text-2xl">Ultima Aula</h1>
-          {course?.map((item) => (
-            <div
-              className="border border-gray-400 w-full h-20 rounded-md flex flex-row justify-around items-center cursor-pointer"
-              key={item.title}
-              onClick={() => navigate(`/course/${item.title}`)}
-            >
-              <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center">
-                <i>
-                  <BiBookAlt size={30} color="#fff" />
-                </i>
+          {course ? (
+            course?.map((item) => (
+              <div
+                className="border border-gray-400 w-full h-20 rounded-md flex flex-row justify-around items-center cursor-pointer"
+                key={item.title}
+                onClick={() => navigate(`/course/${item.title}`)}
+              >
+                <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center">
+                  <i>
+                    <BiBookAlt size={30} color="#fff" />
+                  </i>
+                </div>
+                <div>
+                  <p className="text-xl font-secondary">{item.title}</p>
+                </div>
+                <img
+                  src={item.thumbnail}
+                  alt={item.title}
+                  className="w-16 h-16 rounded-md"
+                />
               </div>
-              <div>
-                <p className="text-xl font-secondary">{item.title}</p>
-              </div>
-              <img
-                src={item.thumbnail}
-                alt={item.title}
-                className="w-16 h-16 rounded-md"
-              />
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>Você ainda não fez nenhum curso</p>
+          )}
           <h2 className="text-xl mt-4">Informações Gerais</h2>
           <div className="border border-gray-400 w-full h-20 rounded-md flex flex-row justify-around items-center">
             <div className="bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center">
