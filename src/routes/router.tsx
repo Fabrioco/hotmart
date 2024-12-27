@@ -4,25 +4,27 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
 import Course from "../pages/Course";
+import ForgotPassword from "../pages/ForgotPassword";
+import MyCourses from "../pages/MyCourses";
+import Refunds from "../pages/Refunds";
+import Messages from "../pages/Messages";
+import Admin from "../pages/Admin";
+import Payment from "../pages/Payment";
 
 import Notification from "../components/notification";
+import { SidebarNav } from "../components/sideBarNav";
 
 import { AuthProvider } from "../contexts/authContext";
 import { NotificationProvider } from "../contexts/notificationContext";
 import { UserDataProvider } from "../contexts/userDataContext";
-import MyCourses from "../pages/MyCourses";
-import Refunds from "../pages/Refunds";
-import { SidebarNav } from "../components/sideBarNav";
-import Messages from "../pages/Messages";
+
 import Private from "./private";
-import Admin from "../pages/Admin";
-import Payment from "../pages/Payment";
 import { PrivateAdminRoute } from "./privateAdminRoute";
 
 export const RouterApp = () => {
   const location = useLocation();
 
-  const hideSidebarNav: string[] = ["/login", "/register"];
+  const hideSidebarNav: string[] = ["/login", "/register", "/forgot-password"];
 
   const showSidebar = !hideSidebarNav.includes(location.pathname);
 
@@ -35,6 +37,7 @@ export const RouterApp = () => {
           <Routes>
             <Route path="/" element={<Navigate to={"/login"} replace />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/register" element={<Register />} />
             <Route
               path="/dashboard"
