@@ -124,10 +124,9 @@ export default function Login() {
         </button>
       </form>
       <div className="w-1/2 font-secondary text-lg">
-        <p>
-          Esqueceu a{" "}
-          <span className="hover:underline cursor-pointer">senha?</span>
-        </p>
+        <a href="/forgot-password" className="hover:underline">
+          Esqueceu a senha?
+        </a>
         <p>
           Não tem login?{" "}
           <a href="/register" className="hover:underline">
