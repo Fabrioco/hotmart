@@ -20,6 +20,7 @@ import { UserDataProvider } from "../contexts/userDataContext";
 
 import Private from "./private";
 import { PrivateAdminRoute } from "./privateAdminRoute";
+import NeedHelp from "../pages/needHelp";
 
 export const RouterApp = () => {
   const location = useLocation();
@@ -76,6 +77,14 @@ export const RouterApp = () => {
               element={
                 <Private>
                   <Messages />
+                </Private>
+              }
+            />
+            <Route
+              path="/need-help"
+              element={
+                <Private>
+                  <NeedHelp />
                 </Private>
               }
             />
