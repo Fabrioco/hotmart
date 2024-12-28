@@ -53,8 +53,8 @@ export default function Messages() {
           <p className="text-2xl font-secondary">{admin?.name}</p>
         </div>
         <div className="w-full h-full bg-gray-50 p-4 overflow-y-auto">
-          {messages.map((message) => (
-            <div className="bg-white w-8/12 h-auto rounded-md border border-gray-400 shadow-2xl px-4 py-2 mt-4 flex flex-row justify-between items-center">
+          {messages.map((message, index) => (
+            <div className="bg-white w-8/12 h-auto rounded-md border border-gray-400 shadow-2xl px-4 py-2 mt-4 flex flex-row justify-between items-center" key={index}>
               <div className="flex flex-col break-words overflow-hidden">
                 <h2 className="font-primary text-3xl break-words">
                   {message.title}
