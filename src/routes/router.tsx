@@ -20,7 +20,7 @@ import { UserDataProvider } from "../contexts/userDataContext";
 
 import Private from "./private";
 import { PrivateAdminRoute } from "./privateAdminRoute";
-import NeedHelp from "../pages/needHelp";
+import Settings from "../pages/Settings";
 
 export const RouterApp = () => {
   const location = useLocation();
@@ -81,18 +81,18 @@ export const RouterApp = () => {
               }
             />
             <Route
-              path="/need-help"
-              element={
-                <Private>
-                  <NeedHelp />
-                </Private>
-              }
-            />
-            <Route
               path="/payment/:title"
               element={
                 <Private>
                   <Payment />
+                </Private>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <Private>
+                  <Settings />
                 </Private>
               }
             />

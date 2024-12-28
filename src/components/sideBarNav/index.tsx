@@ -2,7 +2,6 @@ import React from "react";
 import {
   IoChatbubbleOutline,
   IoHomeOutline,
-  IoInformationCircleOutline,
   IoLogOutOutline,
   IoSettingsOutline,
 } from "react-icons/io5";
@@ -23,7 +22,6 @@ export const SidebarNav = () => {
   const isMyCourses = isActiveRoute("/mycourses");
   const isRefunds = isActiveRoute("/refunds");
   const isMessages = isActiveRoute("/messages");
-  const isNeedHelp = isActiveRoute("/needhelp");
   const isSettings = isActiveRoute("/settings");
   const isAdmin = isActiveRoute("/admin");
 
@@ -151,24 +149,9 @@ export const SidebarNav = () => {
       >
         <div
           className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer ${
-            isNeedHelp && "bg-gray-600 bg-opacity-40 rounded-md"
-          }`}
-        >
-          <i>
-            <IoInformationCircleOutline size={25} color="#fff" />
-          </i>
-          <p
-            className={`text-xl text-white font-secondary ${
-              isOpenSidebar ? "block" : "hidden"
-            }`}
-          >
-            Precisa de ajuda?
-          </p>
-        </div>
-        <div
-          className={`flex flex-row items-center gap-3 px-4 py-2 cursor-pointer ${
             isSettings && "bg-gray-600 bg-opacity-40 rounded-md"
           }`}
+          onClick={() => navigate("/settings")}
         >
           <i className={`active:rotate-180 transition-all`}>
             <IoSettingsOutline size={25} color="#fff" />
@@ -196,7 +179,7 @@ export const SidebarNav = () => {
                 isOpenSidebar ? "block" : "hidden"
               }`}
             >
-              Adminstrador
+              Administrador
             </p>
           </div>
         )}
