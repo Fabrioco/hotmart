@@ -9,7 +9,7 @@ import { useNavigate } from "react-router";
 
 export const useRenderContent = (selectedItem: string) => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const { showNotification } = useNotification();
 
   const [newName, setNewName] = React.useState<string>("");
@@ -80,6 +80,9 @@ export const useRenderContent = (selectedItem: string) => {
           ?.delete()
           .then(async () => {
             await deleteDoc(doc(db, "users", user?.uid as string));
+            setUser(null);
+            localStorage.removeItem("userTemporary");
+            localStorage.removeItem("user");
             showNotification("Conta excluída com sucesso", "success");
             navigate("/");
           })
@@ -216,7 +219,10 @@ export const useRenderContent = (selectedItem: string) => {
       return (
         <div className="flex flex-col text-3xl font-secondary p-4">
           <p>Tem certeza que deseja excluir sua conta?</p>
-          <button className="bg-gray-200 px-4 py-2 mt-4 rounded-md active:bg-gray-300 font-tertiary">
+          <button
+            className="bg-gray-200 px-4 py-2 mt-4 rounded-md active:bg-gray-300 font-tertiary"
+            onClick={updateData}
+          >
             Excluir
           </button>
         </div>
