@@ -1,5 +1,5 @@
 import React from "react";
-import { useRenderContent } from "./Register/hooks/useRenderContent";
+import { useRenderContent } from "./hooks/useRenderContent";
 
 export default function Settings() {
   const datas = ["Nome", "Email", "Senha", "Foto de perfil", "Excluir conta"];
@@ -9,7 +9,7 @@ export default function Settings() {
   const renderContentResult = useRenderContent(selectedItem);
 
   return (
-    <div className="container bg-white flex flex-col rounded-md shadow-lg">
+    <div className="w-full h-full bg-white flex flex-col rounded-md shadow-lg">
       <h1 className="text-center text-3xl font-tertiary uppercase border-b border-gray-300 p-4">
         Configurações
       </h1>
