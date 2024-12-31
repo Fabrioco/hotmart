@@ -42,7 +42,6 @@ export default function Dashboard() {
   const [loading, setLoading] = React.useState<boolean>(true);
 
   const fetchCourses = React.useCallback(async () => {
-    if (!user) return;
     try {
       const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
