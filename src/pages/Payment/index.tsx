@@ -43,7 +43,9 @@ export default function Payment() {
             Curso de {item.title}
           </h3>
           <img src={item.thumbnail} alt={item.title} className="h-1/2 w-full" />
-          <h1 className="text-3xl font-bold text-gray-900">{item.value}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {item.valueDiscount ? "R$ " + item.valueDiscount : item.value}
+          </h1>
           <p>{item.desc}</p>
           <p className="text-gray-500 absolute bottom-5">
             <strong>Observação:</strong> o reembolso acontece dentro de 7 dias e
