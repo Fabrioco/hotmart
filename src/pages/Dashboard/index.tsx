@@ -42,6 +42,10 @@ export default function Dashboard() {
   const [loading, setLoading] = React.useState<boolean>(true);
 
   const fetchCourses = React.useCallback(async () => {
+<<<<<<< HEAD
+=======
+    if (!user?.uid) return;
+>>>>>>> feature/dashboard-page
     try {
       const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
@@ -77,7 +81,11 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+<<<<<<< HEAD
   }, [user]);
+=======
+  }, [user?.uid]);
+>>>>>>> feature/dashboard-page
 
   React.useEffect(() => {
     fetchCourses();
@@ -273,7 +281,12 @@ export default function Dashboard() {
                         className="bg-gray-300 hover:bg-gray-400 hover:text-white text-black px-2 py-1 rounded flex flex-col font-tertiary"
                         onClick={() => navigate(`/payment/${course.title}`)}
                       >
-                        Comprar <strong>{course.value}</strong>
+                        Comprar{" "}
+                        <strong>
+                          {course.valueDiscount
+                            ? "R$ " + course.valueDiscount
+                            : course.value}
+                        </strong>
                       </button>
                     </div>
                   </div>
