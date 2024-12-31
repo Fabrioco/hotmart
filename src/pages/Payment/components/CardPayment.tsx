@@ -4,9 +4,9 @@ import axios from "axios";
 import React from "react";
 import { doc, getDoc, increment, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../services/firebaseConnection";
-import { useUser } from "../../../contexts/userDataContext";
 import { useNavigate } from "react-router";
 import { Course } from "../../Dashboard";
+import { useUser } from "../../../hooks/useUser";
 
 export const CardPayment = ({
   value,

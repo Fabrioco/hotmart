@@ -1,9 +1,9 @@
 import React from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useAuth } from "../../contexts/authContext";
 import { useNotification } from "../../contexts/notificationContext";
-import { useUser } from "../../contexts/userDataContext";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useUser } from "../../hooks/useUser";
 
 export default function Login() {
   const navigate = useNavigate();

@@ -3,12 +3,12 @@ import { BiBookAlt } from "react-icons/bi";
 import { FaArrowAltCircleUp, FaBell } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 import { Graphics } from "./components/Graphics";
-import { useUser } from "../../../../contexts/userDataContext";
 import imageCompression from "browser-image-compression";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../services/firebaseConnection";
 import { Course } from "../..";
 import { useNavigate } from "react-router";
+import { useUser } from "../../../../hooks/useUser";
 
 type SidebarUserProps = {
   isOpenSidebarUser: boolean;
@@ -88,7 +88,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
     }
   };
 
-  const fetchVideo = async () => {
+  const fetchVideo = React.useCallback(async () => {
     try {
       const docSnap = await getDoc(doc(db, "courses", `${user?.lastAccess}`));
       if (docSnap.exists()) {
@@ -98,11 +98,11 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [user?.lastAccess]);
 
   React.useEffect(() => {
     fetchVideo();
-  }, [user?.lastAccess]);
+  }, [fetchVideo]);
 
   return (
     <div

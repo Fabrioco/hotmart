@@ -10,7 +10,7 @@ export default function Payment() {
   const [course, setCourse] = React.useState<Course[]>([]);
   const { title } = useParams();
 
-  const loadCourses = async () => {
+  const loadCourses = React.useCallback(async () => {
     const docSnap = await getDocs(collection(db, "courses"));
     if (docSnap.docs) {
       const allCourses = docSnap.docs.map((doc) => doc.data()) as Course[];
@@ -21,13 +21,15 @@ export default function Payment() {
 
       setCourse(availableCourses);
     }
-  };
+  }, [title]);
 
   React.useEffect(() => {
     loadCourses();
-  }, []);
+  }, [loadCourses]);
 
-  const value = course.map((item) => item.value);
+  const value = course.map((item) =>
+    item.valueDiscount ? item.valueDiscount : item.value
+  );
   const name = course.map((item) => item.title);
 
   return (

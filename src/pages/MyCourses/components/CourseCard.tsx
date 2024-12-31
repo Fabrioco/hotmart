@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Course } from "../../Dashboard";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../services/firebaseConnection";
-import { useUser } from "../../../contexts/userDataContext";
+import { useUser } from "../../../hooks/useUser";
 
 export const CourseCard = ({ course }: { course: Course }) => {
   const navigate = useNavigate();

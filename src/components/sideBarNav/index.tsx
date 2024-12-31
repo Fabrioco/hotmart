@@ -8,9 +8,9 @@ import {
 import { BiBookAlt } from "react-icons/bi";
 import { PiMoney } from "react-icons/pi";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/authContext";
 import { RiAdminLine } from "react-icons/ri";
-import { useUser } from "../../contexts/userDataContext";
+import { useAuth } from "../../hooks/useAuth";
+import { useUser } from "../../hooks/useUser";
 
 export const SidebarNav = () => {
   const location = useLocation();

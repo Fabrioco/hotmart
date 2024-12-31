@@ -6,7 +6,7 @@ import { FaX } from "react-icons/fa6";
 import { useNotification } from "../../../../contexts/notificationContext";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../services/firebaseConnection";
-import { useUser } from "../../../../contexts/userDataContext";
+import { useUser } from "../../../../hooks/useUser";
 
 type EventProps = {
   date: string;

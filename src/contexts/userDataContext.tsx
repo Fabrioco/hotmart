@@ -1,7 +1,8 @@
 import { doc, getDoc } from "firebase/firestore";
 import React from "react";
 import { db } from "../services/firebaseConnection";
-interface UserDataContextType {
+import { UserDataContext } from "../hooks/useUser";
+export interface UserDataContextType {
   user: UserDataProps | null;
   setUser: React.Dispatch<React.SetStateAction<UserDataProps | null>>;
 }
@@ -15,10 +16,6 @@ export interface UserDataProps {
   lastAccess: string;
 }
 
-const UserDataContext = React.createContext<UserDataContextType | undefined>(
-  undefined
-);
-
 export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -29,21 +26,21 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({
       : sessionStorage.getItem("userTemporary")
   );
 
-  React.useEffect(() => {
-    if (!user) {
-      pullDataUser();
-    }
-    if (!uid) setUid(localStorage.getItem("user"));
-  }, [uid, user]);
-
-  const pullDataUser = async () => {
+  const pullDataUser = React.useCallback(async () => {
     if (uid) {
       const uidUser = JSON.parse(uid);
       const docSnap = await getDoc(doc(db, "users", uidUser));
 
       if (docSnap.exists()) setUser(docSnap.data() as UserDataProps);
     }
-  };
+  }, [uid]);
+
+  React.useEffect(() => {
+    if (!user) {
+      pullDataUser();
+    }
+    if (!uid) setUid(localStorage.getItem("user"));
+  }, [pullDataUser, user, uid]);
 
   return (
     <UserDataContext.Provider value={{ user, setUser }}>
@@ -52,10 +49,4 @@ export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useUser = (): UserDataContextType => {
-  const context = React.useContext(UserDataContext);
-  if (!context) {
-    throw new Error("useUser deve ser usado dentro do UserDataProvider");
-  }
-  return context;
-};
+

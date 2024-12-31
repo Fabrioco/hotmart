@@ -1,7 +1,7 @@
 import React from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useAuth } from "../../contexts/authContext";
 import { useNotification } from "../../contexts/notificationContext";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Register() {
   const { signUp } = useAuth();

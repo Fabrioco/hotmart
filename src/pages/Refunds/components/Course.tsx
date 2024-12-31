@@ -12,7 +12,7 @@ import { Course } from "../../Dashboard";
 import React from "react";
 import axios from "axios";
 import { useNotification } from "../../../contexts/notificationContext";
-import { useUser } from "../../../contexts/userDataContext";
+import { useUser } from "../../../hooks/useUser";
 
 export type CourseProps = {
   title: string;

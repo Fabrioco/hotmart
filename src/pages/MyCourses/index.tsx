@@ -1,12 +1,13 @@
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { CourseCard } from "./components/CourseCard";
 import { db } from "../../services/firebaseConnection";
-import { useUser } from "../../contexts/userDataContext";
 import React from "react";
 import { Course } from "../Dashboard";
+import { useUser } from "../../hooks/useUser";
 
 export default function MyCourses() {
   const { user } = useUser();
+  
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);

@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { loadDataUser } from "../../hooks/loadDataUser";
 import React from "react";
-import { UserDataProps, useUser } from "../../contexts/userDataContext";
+import { UserDataProps } from "../../contexts/userDataContext";
 import { FaBell, FaRegStar, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MyCalendar } from "./components/MyCalendar";
@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 import { NavigateCourse } from "../../components/Buttons/navigateCourse";
+import { useUser } from "../../hooks/useUser";
 
 export type Course = {
   title: string;
@@ -40,8 +41,8 @@ export default function Dashboard() {
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
 
-  const fetchCourses = async () => {
-    if (!user?.uid) return;
+  const fetchCourses = React.useCallback(async () => {
+    if (!user) return;
     try {
       const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
@@ -77,11 +78,11 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   React.useEffect(() => {
     fetchCourses();
-  }, [user?.uid]);
+  }, [fetchCourses]);
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -93,7 +94,7 @@ export default function Dashboard() {
     loadData();
   }, [setUser, uid]);
 
-  const loadCourses = async () => {
+  const loadCourses = React.useCallback(async () => {
     const unsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
       const allCourses = snapshot.docs.map((doc) => ({
         title: doc.id,
@@ -110,11 +111,11 @@ export default function Dashboard() {
       setCourses(availableCourses);
     });
     return () => unsubscribe();
-  };
+  }, [myCourses]);
 
   React.useEffect(() => {
     loadCourses();
-  }, [myCourses]);
+  }, [loadCourses]);
 
   const fetchStar = async (course: string) => {
     const docSnap = onSnapshot(doc(db, "courses", course), (doc) => {

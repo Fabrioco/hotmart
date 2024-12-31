@@ -1,8 +1,8 @@
 import { doc, updateDoc } from "firebase/firestore";
 import React from "react";
 import { db } from "../../services/firebaseConnection";
-import { useUser } from "../../contexts/userDataContext";
 import { useNavigate } from "react-router";
+import { useUser } from "../../hooks/useUser";
 
 type NavigateCourseProps = {
   children: React.ReactNode;

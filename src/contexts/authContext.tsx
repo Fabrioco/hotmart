@@ -9,9 +9,11 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "./notificationContext";
-import { UserDataProps, useUser } from "./userDataContext";
+import { UserDataProps } from "./userDataContext";
+import { useUser } from "../hooks/useUser";
+import { AuthContext } from "../hooks/useAuth";
 
-type AuthContextType = {
+export type AuthContextType = {
   signUp: (name: string, email: string, password: string) => Promise<void>;
 
   signIn: (
@@ -29,7 +31,6 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const AuthContext = React.createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const navigate = useNavigate();
@@ -52,15 +53,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         uid,
         name,
         email,
-        password,
-        isTeacher: false,
       });
       const data: UserDataProps = {
         uid,
         name,
         email,
-        password,
-        isTeacher: false,
+        isAdmin: false,
+        lastAccess: "",
       };
       navigate(`/dashboard`);
       setUser(data);
@@ -97,8 +96,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           uid: uid,
           name: docSnap.data()?.name || "Usuário",
           email: docSnap.data()?.email || email,
-          password: docSnap.data()?.password || "",
-          isTeacher: docSnap.data()?.isTeacher,
+          isAdmin: docSnap.data()?.isAdmin || false,
+          lastAccess: docSnap.data()?.lastAccess || "",
         };
         setUser(userData);
 
@@ -149,4 +148,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-export const useAuth = () => React.useContext(AuthContext);

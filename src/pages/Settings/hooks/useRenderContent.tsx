@@ -1,11 +1,11 @@
 import React from "react";
-import { useUser } from "../../../contexts/userDataContext";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../services/firebaseConnection";
 import imageCompression from "browser-image-compression";
 import { useNotification } from "../../../contexts/notificationContext";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router";
+import { useUser } from "../../../hooks/useUser";
 
 export const useRenderContent = (selectedItem: string) => {
   const navigate = useNavigate();

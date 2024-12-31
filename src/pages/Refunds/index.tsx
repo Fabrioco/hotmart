@@ -1,8 +1,8 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 import { CourseInfo } from "./components/Course";
-import { useUser } from "../../contexts/userDataContext";
 import React from "react";
+import { useUser } from "../../hooks/useUser";
 
 export default function Refunds() {
   const { user } = useUser();

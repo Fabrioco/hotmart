@@ -2,7 +2,7 @@ import React from "react";
 import { db } from "../services/firebaseConnection";
 import { useNavigate } from "react-router";
 import { doc, getDoc } from "firebase/firestore";
-import { useUser } from "../contexts/userDataContext";
+import { useUser } from "../hooks/useUser";
 
 type PrivateAdminRouteProps = {
   children: React.ReactNode;
