@@ -69,7 +69,6 @@ export default function Dashboard() {
 
         setMyCourses(filteredCourses as Course[]);
       } else {
-        console.log("Nenhum dado encontrado para o usuário.");
         setMyCourses([]);
       }
     } catch (error) {
@@ -115,19 +114,6 @@ export default function Dashboard() {
   React.useEffect(() => {
     loadCourses();
   }, [loadCourses]);
-
-  const fetchStar = async (course: string) => {
-    const docSnap = onSnapshot(doc(db, "courses", course), (doc) => {
-      if (doc.exists()) {
-        // const data = doc.data() as Course;
-      }
-    });
-    return () => docSnap();
-  };
-
-  React.useEffect(() => {
-    fetchStar("teste");
-  }, []);
 
   if (loading) {
     return (

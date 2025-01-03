@@ -89,6 +89,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
   };
 
   const fetchVideo = React.useCallback(async () => {
+    if (!user?.lastAccess) return;
     try {
       const docSnap = await getDoc(doc(db, "courses", `${user?.lastAccess}`));
       if (docSnap.exists()) {

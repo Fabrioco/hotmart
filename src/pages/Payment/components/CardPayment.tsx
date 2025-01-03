@@ -45,6 +45,8 @@ export const CardPayment = ({
     return `${year}-${month}-${day}`;
   };
 
+  console.log(user?.uid)
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     if (!name.trim()) {
       setPaymentError("O nome do titular é obrigatório.");
@@ -81,7 +83,7 @@ export const CardPayment = ({
         const result = await stripe.confirmCardPayment(data.clientSecret, {
           payment_method: {
             card: cardElement,
-            billing_details: { name: name, email: email },
+            billing_details: { name: user?.name, email: email },
           },
         });
 
@@ -94,8 +96,10 @@ export const CardPayment = ({
           showNotification("Pagamento realizado com sucesso!", "success");
           const identification = result.paymentIntent.id;
 
+          if (!user?.uid) return;
+
           await setDoc(doc(db, "payments", identification), {
-            owner: user?.uid,
+            owner: user.uid,
             course: nameCourse,
             value: valueFormatted,
             date: formaterDate(new Date()),
