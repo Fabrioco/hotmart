@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { loadDataUser } from "../../hooks/loadDataUser";
 import React from "react";
-import { UserDataProps } from "../../contexts/userDataContext";
 import { FaBell, FaRegStar, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MyCalendar } from "./components/MyCalendar";
@@ -83,13 +82,13 @@ export default function Dashboard() {
   }, [fetchCourses]);
 
   React.useEffect(() => {
-    const loadData = async () => {
-      if (uid) {
-        const data = await loadDataUser(uid);
-        setUser(data as UserDataProps);
+    const unsubscribe = loadDataUser(uid as string, (data) => setUser(data));
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
       }
     };
-    loadData();
   }, [setUser, uid]);
 
   const loadCourses = React.useCallback(async () => {

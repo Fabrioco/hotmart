@@ -3,12 +3,12 @@ import { BiBookAlt } from "react-icons/bi";
 import { FaArrowAltCircleUp, FaBell } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 import { Graphics } from "./components/Graphics";
-import imageCompression from "browser-image-compression";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../services/firebaseConnection";
 import { Course } from "../..";
 import { useNavigate } from "react-router";
 import { useUser } from "../../../../hooks/useUser";
+import { compressAndConvertToBase64 } from "../../../../hooks/compressAndConvertToBase64";
 
 type SidebarUserProps = {
   isOpenSidebarUser: boolean;
@@ -20,7 +20,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
   setIsOpenSidebarUser,
 }) => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
   const [profilePhoto, setProfilePhoto] = React.useState<string>("");
   const [course, setCourse] = React.useState<Course[] | null>(null);
@@ -31,46 +31,15 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
     }
   }, [user]);
 
-  const day = new Date().toLocaleDateString("pt-BR", { day: "2-digit" });
-
-  const month =
-    new Date()
-      .toLocaleDateString("pt-BR", { month: "long" })
-      .charAt(0)
-      .toUpperCase() +
-    new Date().toLocaleDateString("pt-BR", { month: "long" }).slice(1);
-
-  const year = new Date().toLocaleDateString("pt-BR", { year: "numeric" });
-
-  const weekday =
-    new Date()
-      .toLocaleDateString("pt-BR", { weekday: "long" })
-      .charAt(0)
-      .toUpperCase() +
-    new Date().toLocaleDateString("pt-BR", { weekday: "long" }).slice(1);
-
-  const compressAndConvertToBase64 = async (file: File) => {
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-
-    const compressedFile = await imageCompression(file, options);
-
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(compressedFile);
-      reader.onload = () => {
-        if (reader.result) {
-          resolve(reader.result.toString());
-        } else {
-          reject("Erro ao converter a imagem para Base64");
-        }
-      };
-      reader.onerror = (error) => reject(error);
-    });
-  };
+  const today = new Date();
+  const day = today.toLocaleDateString("pt-BR", { day: "2-digit" });
+  const month = today
+    .toLocaleDateString("pt-BR", { month: "long" })
+    .replace(/^\w/, (c) => c.toUpperCase());
+  const year = today.toLocaleDateString("pt-BR", { year: "numeric" });
+  const weekday = today
+    .toLocaleDateString("pt-BR", { weekday: "long" })
+    .replace(/^\w/, (c) => c.toUpperCase());
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -82,6 +51,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
         await updateDoc(doc(db, "users", user?.uid), {
           profilePhoto: base64Image,
         });
+        setUser({ ...user, profilePhoto: base64Image });
       } catch (error) {
         console.error("Erro ao carregar a imagem:", error);
       }

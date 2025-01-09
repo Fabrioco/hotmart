@@ -1,23 +1,31 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../services/firebaseConnection";
 import { UserDataProps } from "../contexts/userDataContext";
 
-export const loadDataUser = async (
-  uid: string
-): Promise<UserDataProps | null> => {
+export const loadDataUser = (
+  uid: string,
+  onUpdate: (data: UserDataProps | null) => void
+): (() => void) | null => {
   if (!uid) return null;
-  const docRef = doc(db, "users", uid);
-  const docSnap = await getDoc(docRef);
 
-  if (docSnap.exists()) {
-    const data: UserDataProps = {
-      uid: docSnap.data().uid,
-      name: docSnap.data().name,
-      email: docSnap.data().email,
-      password: docSnap.data().password,
-      isTeacher: docSnap.data().isTeacher,
-    };
-    return data;
-  }
-  return null;
+  const docRef = doc(db, "users", uid);
+
+  const unsubscribe = onSnapshot(
+    docRef,
+    (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data() as UserDataProps;
+        onUpdate(data);
+      } else {
+        console.log("Documento não encontrado.");
+        onUpdate(null);
+      }
+    },
+    (error) => {
+      console.error("Erro ao observar o documento:", error);
+      onUpdate(null);
+    }
+  );
+
+  return unsubscribe;
 };
