@@ -1,5 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { loadDataUser } from "../../hooks/loadDataUser";
+import { useNavigate } from "react-router-dom";
 import React from "react";
 import { FaBell, FaRegStar, FaSearch, FaStar } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
@@ -29,27 +28,25 @@ export type Course = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { uid } = useParams();
-  const { setUser } = useUser();
+  const { user } = useUser();
 
   const [courses, setCourses] = React.useState<Course[]>([]);
-  const [isOpenSidebarUser, setIsOpenSidebarUser] =
-    React.useState<boolean>(false);
-
-  const { user } = useUser();
+  const [isOpenSidebarUser, setIsOpenSidebarUser] = React.useState(false);
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const [loading, setLoading] = React.useState(true);
 
   const fetchCourses = React.useCallback(async () => {
+    if (!user) return;
+
     try {
-      const userDocRef = doc(db, "users", `${user?.uid}`);
+      const userDocRef = doc(db, "users", user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
         const rawCourses = userDocSnap.data().courses || [];
         const formattedCourses = rawCourses.map((course: string) => {
-          const parts = course.split(", ");
-          return { title: parts[0], paiedValue: parts[1], paiedDate: parts[2] };
+          const [title, paiedValue, paiedDate] = course.split(", ");
+          return { title, paiedValue, paiedDate };
         });
 
         const coursesCollectionRef = collection(db, "courses");
@@ -81,37 +78,26 @@ export default function Dashboard() {
     fetchCourses();
   }, [fetchCourses]);
 
-  React.useEffect(() => {
-    const unsubscribe = loadDataUser(uid as string, (data) => setUser(data));
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [setUser, uid]);
-
-  const loadCourses = React.useCallback(async () => {
+  const loadCourses = React.useCallback(() => {
     const unsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
       const allCourses = snapshot.docs.map((doc) => ({
         title: doc.id,
         ...doc.data(),
       })) as Course[];
 
-      const availableCourses = myCourses
-        ? allCourses.filter(
-            (course) =>
-              !myCourses.some((myCourse) => myCourse.title === course.title)
-          )
-        : allCourses;
+      const availableCourses = allCourses.filter(
+        (course) => !myCourses.some((myCourse) => myCourse.title === course.title)
+      );
 
       setCourses(availableCourses);
     });
-    return () => unsubscribe();
+
+    return unsubscribe;
   }, [myCourses]);
 
   React.useEffect(() => {
-    loadCourses();
+    const unsubscribe = loadCourses();
+    return () => unsubscribe();
   }, [loadCourses]);
 
   if (loading) {
