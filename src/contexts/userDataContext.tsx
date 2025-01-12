@@ -14,6 +14,7 @@ export interface UserDataProps {
   isAdmin?: boolean;
   profilePhoto?: string;
   lastAccess: string;
+  favorite?: string[];
 }
 
 export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({

@@ -2,17 +2,18 @@ import React from "react";
 import { BiPlay } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaRegStar, FaShare, FaStar } from "react-icons/fa";
-import { IoArchive } from "react-icons/io5";
 import { MdFavorite } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { Course } from "../../Dashboard";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../../services/firebaseConnection";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../../../services/firebaseConnection";
 import { useUser } from "../../../hooks/useUser";
+import { useNotification } from "../../../contexts/notificationContext";
 
 export const CourseCard = ({ course }: { course: Course }) => {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { showNotification } = useNotification();
 
   const [isOpenToolbar, setIsOpenToolbar] = React.useState<boolean>(false);
   const [rating, setRating] = React.useState<number>(0);
@@ -26,6 +27,42 @@ export const CourseCard = ({ course }: { course: Course }) => {
       lastAccess: course.title as string,
     });
     navigate(`/course/${course.title}`);
+  };
+
+  const favoriteCourse = async () => {
+    try {
+      const userDocRef = doc(db, "users", auth.currentUser!.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const favorites = userData.favorite || [];
+
+        if (favorites.includes(course.title)) {
+          const updatedFavorites = favorites.filter(
+            (fav: string) => fav !== course.title
+          );
+          await updateDoc(userDocRef, {
+            favorite: updatedFavorites,
+          });
+
+          showNotification("Curso removido dos favoritos.", "success");
+          setIsOpenToolbar(false);
+        } else {
+          await updateDoc(userDocRef, {
+            favorite: [...favorites, course.title],
+          });
+
+          showNotification("Curso favoritado com sucesso!", "success");
+          setIsOpenToolbar(false);
+        }
+      } else {
+        showNotification("Usuário não encontrado no banco de dados.", "error");
+      }
+    } catch (error) {
+      console.error("Erro ao favoritar o curso:", error);
+      showNotification("Ocorreu um erro ao tentar favoritar o curso.", "error");
+    }
   };
 
   return (
@@ -57,20 +94,19 @@ export const CourseCard = ({ course }: { course: Course }) => {
               isOpenToolbar ? "block" : "hidden"
             } w-80 h-40 bg-white  absolute top-2 right-14 z-10 border border-gray-200 shadow-2xl rounded-lg flex flex-col text-xl font-tertiary justify-between`}
           >
-            <button className="w-full h-14 flex justify-center items-center gap-3">
-              Arquivar
-              <i>
-                <IoArchive size={25} />
-              </i>
-            </button>
             <button className="w-full h-14 flex justify-center items-center gap-3 border-y border-black">
               Compartilhar
               <i>
                 <FaShare size={25} />
               </i>
             </button>
-            <button className="w-full h-14 flex justify-center items-center gap-3">
-              Favoritar
+            <button
+              className="w-full h-14 flex justify-center items-center gap-3"
+              onClick={favoriteCourse}
+            >
+              {user && user.favorite && user.favorite.includes(course.title)
+                ? "Desfavoritar"
+                : "Favoritar"}
               <i>
                 <MdFavorite size={25} />
               </i>
