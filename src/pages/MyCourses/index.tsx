@@ -23,11 +23,7 @@ export default function MyCourses() {
 
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
-        const {
-          courses: rawCourses = [],
-          favorite = [],
-          concludedCourses = [],
-        } = userData;
+        const { favorite = [], concludedCourses = [] } = userData;
 
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
@@ -40,9 +36,7 @@ export default function MyCourses() {
         let filteredCourses: Course[] = [];
         switch (selected) {
           case "Todos Cursos":
-            filteredCourses = allCourses.filter((course) =>
-              rawCourses.includes(course.title)
-            );
+            filteredCourses = allCourses;
             break;
           case "Favoritos":
             filteredCourses = allCourses.filter((course) =>
