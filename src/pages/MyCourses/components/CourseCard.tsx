@@ -1,21 +1,20 @@
 import React from "react";
 import { BiPlay } from "react-icons/bi";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { FaRegStar, FaShare, FaStar } from "react-icons/fa";
-import { MdFavorite } from "react-icons/md";
+import { FaRegStar, FaStar } from "react-icons/fa";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { Course } from "../../Dashboard";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../services/firebaseConnection";
 import { useUser } from "../../../hooks/useUser";
 import { useNotification } from "../../../contexts/notificationContext";
+import { UserDataProps } from "../../../contexts/userDataContext";
 
 export const CourseCard = ({ course }: { course: Course }) => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const { showNotification } = useNotification();
 
-  const [isOpenToolbar, setIsOpenToolbar] = React.useState<boolean>(false);
   const [rating, setRating] = React.useState<number>(0);
 
   const handleRating = (star: number) => {
@@ -32,38 +31,31 @@ export const CourseCard = ({ course }: { course: Course }) => {
   const favoriteCourse = async () => {
     try {
       const userDocRef = doc(db, "users", auth.currentUser!.uid);
-      const userDocSnap = await getDoc(userDocRef);
+      const favorites = user?.favorite || [];
 
-      if (userDocSnap.exists()) {
-        const userData = userDocSnap.data();
-        const favorites = userData.favorite || [];
-
-        if (favorites.includes(course.title)) {
-          const updatedFavorites = favorites.filter(
-            (fav: string) => fav !== course.title
-          );
-          await updateDoc(userDocRef, {
-            favorite: updatedFavorites,
-          });
-
-          showNotification("Curso removido dos favoritos.", "success");
-          setIsOpenToolbar(false);
-        } else {
-          await updateDoc(userDocRef, {
-            favorite: [...favorites, course.title],
-          });
-
-          showNotification("Curso favoritado com sucesso!", "success");
-          setIsOpenToolbar(false);
-        }
+      let updatedFavorites;
+      if (favorites.includes(course.title)) {
+        updatedFavorites = favorites.filter((fav) => fav !== course.title);
+        showNotification("Curso removido dos favoritos.", "success");
       } else {
-        showNotification("Usuário não encontrado no banco de dados.", "error");
+        updatedFavorites = [...favorites, course.title];
+        showNotification("Curso favoritado com sucesso!", "success");
       }
+
+      setUser({
+        ...user,
+        favorite: updatedFavorites,
+      } as UserDataProps);
+
+      await updateDoc(userDocRef, {
+        favorite: updatedFavorites,
+      });
     } catch (error) {
       console.error("Erro ao favoritar o curso:", error);
       showNotification("Ocorreu um erro ao tentar favoritar o curso.", "error");
     }
   };
+  console.log(user);
 
   return (
     <div className="w-72 h-[300px] border border-gray-300 rounded-lg p-2 relative ">
@@ -80,38 +72,20 @@ export const CourseCard = ({ course }: { course: Course }) => {
             alt={course.title}
             className="w-full h-full absolute top-0 left-0"
           />
-          <i
-            className="absolute top-2 right-2 bg-white p-1 rounded z-10 hover:bg-gray-200"
-            onClick={() => setIsOpenToolbar((prev) => !prev)}
-          >
-            <BsThreeDotsVertical size={25} color="#000" />
-          </i>
-        </div>
-
-        <div>
-          <div
-            className={`${
-              isOpenToolbar ? "block" : "hidden"
-            } w-80 h-40 bg-white  absolute top-2 right-14 z-10 border border-gray-200 shadow-2xl rounded-lg flex flex-col text-xl font-tertiary justify-between`}
-          >
-            <button className="w-full h-14 flex justify-center items-center gap-3 border-y border-black">
-              Compartilhar
-              <i>
-                <FaShare size={25} />
-              </i>
-            </button>
+          <i className="absolute top-2 right-2 bg-white p-1 rounded z-10 hover:bg-gray-200">
             <button
               className="w-full h-14 flex justify-center items-center gap-3"
               onClick={favoriteCourse}
             >
-              {user && user.favorite && user.favorite.includes(course.title)
-                ? "Desfavoritar"
-                : "Favoritar"}
-              <i>
-                <MdFavorite size={25} />
-              </i>
+              {user?.favorite?.includes(course.title) ? (
+                <i>
+                  <MdFavorite size={25} color="red" />
+                </i>
+              ) : (
+                <MdFavoriteBorder size={25} color="red" />
+              )}
             </button>
-          </div>
+          </i>
         </div>
       </div>
       <p className="text-2xl font-secondary">{course.title}</p>

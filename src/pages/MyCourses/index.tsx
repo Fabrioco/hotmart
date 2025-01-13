@@ -14,6 +14,8 @@ export default function MyCourses() {
   const [selected, setSelected] = React.useState<string>("Todos Cursos");
 
   const fetchCourses = React.useCallback(async () => {
+    if (!user) return;
+
     try {
       const userDocRef = doc(db, "users", `${user?.uid}`);
       const userDocSnap = await getDoc(userDocRef);
@@ -22,8 +24,8 @@ export default function MyCourses() {
         const rawCourses: string[] = userDocSnap.data().courses || [];
 
         const formattedCourses = rawCourses.map((course) => {
-          const [title, paiedValue, paiedDate] = course.split(", ");
-          return { title, paiedValue, paiedDate };
+          const [title, paidValue, paidDate] = course.split(", ");
+          return { title, paidValue, paidDate };
         });
 
         const coursesCollectionRef = collection(db, "courses");
@@ -34,9 +36,20 @@ export default function MyCourses() {
           ...doc.data(),
         })) as Course[];
 
-        const filteredCourses = allCourses.filter((course) =>
+        let filteredCourses = allCourses.filter((course) =>
           formattedCourses.some((formatted) => formatted.title === course.title)
         );
+
+        // Filtrar com base na seleção de navegação
+        if (selected === "Favoritos") { 
+          filteredCourses = filteredCourses.filter(
+            (course) => course.isFavorite && course.title === user?.uid
+          ); // Filtra por favorito e pelo id do usuário
+        } else if (selected === "Concluídos") {
+          filteredCourses = filteredCourses.filter(
+            (course) => course.isCompleted && course.title === user?.uid
+          ); // Filtra por concluído e pelo id do usuário
+        }
 
         setMyCourses(filteredCourses);
       }
@@ -46,26 +59,14 @@ export default function MyCourses() {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, selected]);
 
   React.useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
   const selectNav = (selected: string) => {
-    switch (selected) {
-      case "Todos Cursos":
-        setSelected("Todos Cursos");
-        break;
-      case "Favoritos":
-        setSelected("Favoritos");
-        break;
-      case "Concluídos":
-        setSelected("Concluídos");
-        break;
-      default:
-        break;
-    }
+    setSelected(selected);
   };
 
   if (loading) {
