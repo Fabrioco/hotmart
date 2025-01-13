@@ -17,16 +17,17 @@ export default function MyCourses() {
     if (!user) return;
 
     try {
-      const userDocRef = doc(db, "users", `${user?.uid}`);
+      setLoading(true);
+      const userDocRef = doc(db, "users", `${user.uid}`);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        const rawCourses: string[] = userDocSnap.data().courses || [];
-
-        const formattedCourses = rawCourses.map((course) => {
-          const [title, paidValue, paidDate] = course.split(", ");
-          return { title, paidValue, paidDate };
-        });
+        const userData = userDocSnap.data();
+        const {
+          courses: rawCourses = [],
+          favorite = [],
+          concludedCourses = [],
+        } = userData;
 
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
@@ -36,22 +37,30 @@ export default function MyCourses() {
           ...doc.data(),
         })) as Course[];
 
-        let filteredCourses = allCourses.filter((course) =>
-          formattedCourses.some((formatted) => formatted.title === course.title)
-        );
-
-        // Filtrar com base na seleção de navegação
-        if (selected === "Favoritos") { 
-          filteredCourses = filteredCourses.filter(
-            (course) => course.isFavorite && course.title === user?.uid
-          ); // Filtra por favorito e pelo id do usuário
-        } else if (selected === "Concluídos") {
-          filteredCourses = filteredCourses.filter(
-            (course) => course.isCompleted && course.title === user?.uid
-          ); // Filtra por concluído e pelo id do usuário
+        let filteredCourses: Course[] = [];
+        switch (selected) {
+          case "Todos Cursos":
+            filteredCourses = allCourses.filter((course) =>
+              rawCourses.includes(course.title)
+            );
+            break;
+          case "Favoritos":
+            filteredCourses = allCourses.filter((course) =>
+              favorite.includes(course.title)
+            );
+            break;
+          case "Concluídos":
+            filteredCourses = allCourses.filter((course) =>
+              concludedCourses.includes(course.title)
+            );
+            break;
+          default:
+            break;
         }
 
         setMyCourses(filteredCourses);
+      } else {
+        setMyCourses([]);
       }
     } catch (err) {
       console.error("Erro ao buscar cursos:", err);
@@ -59,7 +68,7 @@ export default function MyCourses() {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid, selected]);
+  }, [user, selected]);
 
   React.useEffect(() => {
     fetchCourses();

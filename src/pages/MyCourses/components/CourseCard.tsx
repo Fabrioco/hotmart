@@ -55,7 +55,6 @@ export const CourseCard = ({ course }: { course: Course }) => {
       showNotification("Ocorreu um erro ao tentar favoritar o curso.", "error");
     }
   };
-  console.log(user);
 
   return (
     <div className="w-72 h-[300px] border border-gray-300 rounded-lg p-2 relative ">
