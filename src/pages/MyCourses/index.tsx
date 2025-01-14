@@ -10,7 +10,6 @@ export default function MyCourses() {
 
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [error, setError] = React.useState<string | null>(null);
   const [selected, setSelected] = React.useState<string>("Todos Cursos");
 
   const fetchCourses = React.useCallback(async () => {
@@ -44,7 +43,6 @@ export default function MyCourses() {
         });
 
         if (userCourses.length === 0) {
-          setError("Nenhum curso encontrado.");
           setLoading(false);
           return;
         }
@@ -74,7 +72,6 @@ export default function MyCourses() {
       }
     } catch (err) {
       console.error("Erro ao buscar cursos:", err);
-      setError("Erro ao buscar cursos. Tente novamente mais tarde.");
     } finally {
       setLoading(false);
     }
@@ -90,10 +87,6 @@ export default function MyCourses() {
 
   if (loading) {
     return <div className="text-center text-white">Carregando...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (
