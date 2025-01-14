@@ -23,7 +23,11 @@ export default function MyCourses() {
 
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
-        const { favorite = [], concludedCourses = [] } = userData;
+        const {
+          courses: rawCourses = [],
+          favorite = [],
+          concludedCourses = [],
+        } = userData;
 
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
@@ -33,18 +37,30 @@ export default function MyCourses() {
           ...doc.data(),
         })) as Course[];
 
+        const userCourses: Course[] = rawCourses.map((course: string) => {
+          const [title, value, date] = course.split(", ");
+          const courseData = allCourses.find((c) => c.title === title);
+          return { title, value, date, ...courseData };
+        });
+
+        if (userCourses.length === 0) {
+          setError("Nenhum curso encontrado.");
+          setLoading(false);
+          return;
+        }
+
         let filteredCourses: Course[] = [];
         switch (selected) {
           case "Todos Cursos":
-            filteredCourses = allCourses;
+            filteredCourses = userCourses;
             break;
           case "Favoritos":
-            filteredCourses = allCourses.filter((course) =>
+            filteredCourses = userCourses.filter((course) =>
               favorite.includes(course.title)
             );
             break;
           case "Concluídos":
-            filteredCourses = allCourses.filter((course) =>
+            filteredCourses = userCourses.filter((course) =>
               concludedCourses.includes(course.title)
             );
             break;

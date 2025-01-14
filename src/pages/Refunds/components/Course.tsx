@@ -79,7 +79,7 @@ export const CourseInfo = ({ title, paiedValue, paiedDate }: CourseProps) => {
 
   React.useEffect(() => {
     fetchCourse();
-  }, [title, () => requestRefund()]);
+  }, [title]);
 
   const requestRefund = async () => {
     try {
