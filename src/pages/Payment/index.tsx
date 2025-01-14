@@ -28,7 +28,7 @@ export default function Payment() {
   }, [loadCourses]);
 
   const value = course.map((item) =>
-    item.valueDiscount ? item.valueDiscount : item.value
+    item.valueDiscount ? "R$ " + item.valueDiscount : item.value
   );
   const name = course.map((item) => item.title);
 
