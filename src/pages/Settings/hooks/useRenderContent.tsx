@@ -3,12 +3,15 @@ import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../services/firebaseConnection";
 import imageCompression from "browser-image-compression";
 import { useNotification } from "../../../contexts/notificationContext";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { useNavigate } from "react-router";
+import {
+  deleteUser,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { useUser } from "../../../hooks/useUser";
+import { EmailAuthProvider } from "firebase/auth/web-extension";
 
 export const useRenderContent = (selectedItem: string) => {
-  const navigate = useNavigate();
   const { user, setUser } = useUser();
   const { showNotification } = useNotification();
 
@@ -18,7 +21,10 @@ export const useRenderContent = (selectedItem: string) => {
   const [file, setFile] = React.useState<File | null>(null);
 
   const updateData = async () => {
-    const docRef = doc(db, "users", user?.uid as string);
+    const uid: string = user?.uid as string;
+
+    const docRef = doc(db, "users", `${uid}`);
+
     switch (selectedItem) {
       case "Nome":
         await updateDoc(docRef, { name: newName })
@@ -75,21 +81,49 @@ export const useRenderContent = (selectedItem: string) => {
             });
         }
         break;
-      case "Excluir conta":
-        await auth.currentUser
-          ?.delete()
-          .then(async () => {
-            await deleteDoc(doc(db, "users", user?.uid as string));
-            setUser(null);
-            localStorage.removeItem("userTemporary");
-            localStorage.removeItem("user");
-            showNotification("Conta excluída com sucesso", "success");
-            navigate("/");
-          })
-          .catch(() => {
-            showNotification("Erro ao excluir conta", "error");
-          });
+      case "Excluir conta": {
+        if (!auth.currentUser) {
+          alert("Nenhum usuário está logado.");
+          return;
+        }
+
+        const userData = auth.currentUser;
+        const confirmationEmail: string | null = prompt(
+          "Digite seu e-mail para confirmar:"
+        );
+        const confirmationPassword: string | null = prompt(
+          "Digite sua senha para confirmar:"
+        );
+
+        try {
+          if (!confirmationEmail || !confirmationPassword) return;
+          const credential = EmailAuthProvider.credential(
+            confirmationEmail,
+            confirmationPassword
+          );
+          await reauthenticateWithCredential(userData, credential);
+
+          const userDocRef = doc(db, "users", userData.uid);
+          await deleteDoc(userDocRef);
+
+          await deleteUser(userData);
+          setUser(null);
+          localStorage.removeItem("user");
+          sessionStorage.removeItem("userTemporary");
+
+          showNotification("Conta deletada com sucesso!", "success");
+        } catch (error: unknown) {
+          console.error("Erro ao deletar conta:", error);
+          if (error === "auth/wrong-password") {
+            alert("Senha incorreta. Tente novamente.");
+          } else if (error === "auth/user-not-found") {
+            alert("Usuário não encontrado.");
+          } else {
+            alert("Ocorreu um erro. Tente novamente.");
+          }
+        }
         break;
+      }
     }
   };
 
