@@ -8,7 +8,7 @@ const Notification: React.FC = () => {
   if (!notification) return null;
 
   return (
-    <div className="fixed top-20 right-40 bg-white text-black text-3xl px-4 py-2 rounded-md border border-gray-300 shadow-md animate-bounce">
+    <div className="fixed top-20 right-40 bg-white text-black text-3xl px-4 py-2 rounded-md border border-gray-300 shadow-md animate-bounce z-50">
       <p
         className={`flex items-center gap-4 ${
           notification.type === "success" ? "text-green-600" : "text-red-600"

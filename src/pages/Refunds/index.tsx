@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 import { CourseInfo } from "./components/Course";
 import React from "react";
@@ -18,6 +18,17 @@ export default function Refunds() {
   const fetchData = async () => {
     try {
       const docRef = doc(db, "users", `${user?.uid}`);
+      const unsubscribe = onSnapshot(docRef, (doc) => {
+        if (doc.exists()) {
+          const rawCourses = doc.data().courses || [];
+          const formattedCourses = rawCourses.map((course: string) => {
+            const [title, paiedValue, paiedDate] = course.split(", ");
+            return { title, paiedValue, paiedDate };
+          });
+          setCourses(formattedCourses);
+        }
+        return () => unsubscribe();
+      });
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {

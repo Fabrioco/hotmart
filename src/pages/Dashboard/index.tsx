@@ -24,6 +24,8 @@ export type Course = {
   rating?: number;
   quantity?: number;
   valueDiscount?: string;
+  isFavorite?: boolean;
+  isCompleted?: boolean;
 };
 
 export default function Dashboard() {
@@ -86,7 +88,8 @@ export default function Dashboard() {
       })) as Course[];
 
       const availableCourses = allCourses.filter(
-        (course) => !myCourses.some((myCourse) => myCourse.title === course.title)
+        (course) =>
+          !myCourses.some((myCourse) => myCourse.title === course.title)
       );
 
       setCourses(availableCourses);

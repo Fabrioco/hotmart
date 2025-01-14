@@ -7,23 +7,23 @@ import { useUser } from "../../hooks/useUser";
 
 export default function MyCourses() {
   const { user } = useUser();
-  
+
   const [myCourses, setMyCourses] = React.useState<Course[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [selected, setSelected] = React.useState<string>("Todos Cursos");
 
   const fetchCourses = React.useCallback(async () => {
+    if (!user) return;
+
     try {
-      const userDocRef = doc(db, "users", `${user?.uid}`);
+      setLoading(true);
+      const userDocRef = doc(db, "users", `${user.uid}`);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        const rawCourses: string[] = userDocSnap.data().courses || [];
-
-        const formattedCourses = rawCourses.map((course) => {
-          const [title, paiedValue, paiedDate] = course.split(", ");
-          return { title, paiedValue, paiedDate };
-        });
+        const userData = userDocSnap.data();
+        const { favorite = [], concludedCourses = [] } = userData;
 
         const coursesCollectionRef = collection(db, "courses");
         const coursesSnapshot = await getDocs(coursesCollectionRef);
@@ -33,11 +33,28 @@ export default function MyCourses() {
           ...doc.data(),
         })) as Course[];
 
-        const filteredCourses = allCourses.filter((course) =>
-          formattedCourses.some((formatted) => formatted.title === course.title)
-        );
+        let filteredCourses: Course[] = [];
+        switch (selected) {
+          case "Todos Cursos":
+            filteredCourses = allCourses;
+            break;
+          case "Favoritos":
+            filteredCourses = allCourses.filter((course) =>
+              favorite.includes(course.title)
+            );
+            break;
+          case "Concluídos":
+            filteredCourses = allCourses.filter((course) =>
+              concludedCourses.includes(course.title)
+            );
+            break;
+          default:
+            break;
+        }
 
         setMyCourses(filteredCourses);
+      } else {
+        setMyCourses([]);
       }
     } catch (err) {
       console.error("Erro ao buscar cursos:", err);
@@ -45,11 +62,15 @@ export default function MyCourses() {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user, selected]);
 
   React.useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
+
+  const selectNav = (selected: string) => {
+    setSelected(selected);
+  };
 
   if (loading) {
     return <div className="text-center text-white">Carregando...</div>;
@@ -66,9 +87,19 @@ export default function MyCourses() {
           Meus cursos
         </h1>
         <div className="flex w-full justify-around text-white text-2xl font-tertiary">
-          <button className="underline">Todos Cursos</button>
-          <button>Favoritos</button>
-          <button>Concluídos</button>
+          {["Todos Cursos", "Favoritos", "Concluídos"].map((item, index) => (
+            <button
+              key={index}
+              className={
+                selected === item
+                  ? "border-b-2 border-white"
+                  : "border-b-2 border-transparent"
+              }
+              onClick={() => selectNav(item)}
+            >
+              {item}
+            </button>
+          ))}
         </div>
       </div>
       <div className="w-full h-full flex gap-5 flex-wrap mx-auto justify-center overflow-y-auto bg-white py-10 rounded-b-md">
