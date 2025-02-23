@@ -24,8 +24,6 @@ Este é um projeto completo de uma plataforma de vendas de cursos inspirado no H
 - Sistema de compra e gerenciamento de cursos adquiridos.
 - Painel administrativo para gerenciamento de cursos (opcional).
 
-- > **Nota:** Este projeto está em desenvolvimento, e algumas funcionalidades podem não estar completas.
-
 
 ## ⚙️ Como executar o projeto
 
